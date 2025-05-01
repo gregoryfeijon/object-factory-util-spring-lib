@@ -13,7 +13,7 @@
 	<version>1.0.0</version>
 	<name>object-factory-util-spring-lib</name>
 	<description>Java library that create copy from objects and collections with new memory reference. Version for spring projects.</description>
-	<url/>
+	<url>https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</url>
 
 	<licenses>
 		<license>
@@ -31,10 +31,10 @@
 	</developers>
 
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</connection>
+		<developerConnection>scm:git:https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</developerConnection>
+		<url>https://github.com/gregoryfeijon/object-factory-util-spring-lib</url>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>
