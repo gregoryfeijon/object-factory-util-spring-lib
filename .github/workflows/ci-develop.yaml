@@ -36,12 +36,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn sonar:sonar -Dsonar.projectKey=gregoryfeijon_object-factory-util-spring-lib -Dsonar.organization=gregory-feijon -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
 
-      - name: Baixar Semgrep
-        run: |
-          curl -sL https://semgrep.dev/get | bash
-
       - name: Análise Semgrep
-        run: ./semgrep scan --config=auto
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto  # Pode ser p/default ou um caminho para ruleset custom
 
       - name: Instalar OWASP Dependency-Check
         run: |
