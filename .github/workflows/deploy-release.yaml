@@ -40,6 +40,7 @@ jobs:
       - name: Build e Deploy para Maven Central
         run: mvn clean deploy -P release --settings .github/maven-settings.xml --batch-mode
         env:
+          MAVEN_GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           SONATYPE_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
