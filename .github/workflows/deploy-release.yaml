@@ -14,26 +14,36 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup JDK 21
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Setup JDK 21 com cache Maven
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
           distribution: 'temurin'
+          java-version: '21'
           cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
           server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
+          server-username: ${{ secrets.SONATYPE_USERNAME }}
+          server-password: ${{ secrets.SONATYPE_PASSWORD }}
 
-      - name: Build e Deploy
-        run: mvn clean deploy -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} --batch-mode
+      - name: Build e Deploy para Maven Central
+        run: mvn clean deploy -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} --settings .github/maven-settings.xml --batch-mode
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Merge automático para master
+      - name: Merge automático para main
         uses: devmasx/merge-branch@v1.4.0
         with:
           type: now
           from_branch: ${{ github.ref_name }}
-          target_branch: master
+          target_branch: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
