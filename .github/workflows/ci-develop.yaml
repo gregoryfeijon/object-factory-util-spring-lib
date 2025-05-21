@@ -39,7 +39,7 @@ jobs:
       - name: Análise Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
-          config: auto  # Pode ser p/default ou um caminho para ruleset custom
+          config: .semgrep.yaml  # Pode ser p/default (auto) ou um caminho para ruleset custom
 
       - name: Instalar OWASP Dependency-Check
         run: |
