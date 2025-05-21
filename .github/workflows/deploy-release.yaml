@@ -34,15 +34,15 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '**/pom.xml'
           server-id: ossrh
-          server-username: ${{ secrets.SONATYPE_USERNAME }}
-          server-password: ${{ secrets.SONATYPE_PASSWORD }}
+          server-username: ${{ secrets.OSSRH_USERNAME }}
+          server-password: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Build e Deploy para Maven Central
         run: mvn clean deploy -P release --settings .github/maven-settings.xml --batch-mode
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Merge automático para main
         uses: devmasx/merge-branch@v1.4.0
