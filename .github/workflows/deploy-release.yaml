@@ -46,9 +46,12 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
 
       - name: Merge automático para main
+        if: success()
         uses: devmasx/merge-branch@v1.4.0
         with:
           type: now
           from_branch: ${{ github.ref_name }}
           target_branch: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
