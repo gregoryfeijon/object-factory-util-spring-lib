@@ -6,7 +6,7 @@ rules:
     metadata:
       reason: "Class is instantiated internally using known domain types. No user input is involved."
     paths:
-      - src/main/java/io/github/gregoryfeijon/utils/serialization/ObjectFactoryUtil.java
+      - pattern: src/main/java/io/github/gregoryfeijon/utils/serialization/ObjectFactoryUtil.java
     languages: [java]
 
   - id: java.lang.security.audit.object-deserialization.object-deserialization
@@ -16,5 +16,5 @@ rules:
     metadata:
       reason: "Deserialization only occurs on internal byte[] generated within the application. No external input."
     paths:
-      - src/main/java/io/github/gregoryfeijon/utils/serialization/SerializationUtil.java
+      - pattern: src/main/java/io/github/gregoryfeijon/utils/serialization/SerializationUtil.java
     languages: [java]
