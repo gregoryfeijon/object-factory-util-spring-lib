@@ -36,10 +36,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn sonar:sonar -Dsonar.projectKey=gregoryfeijon_object-factory-util-spring-lib -Dsonar.organization=gregory-feijon -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
 
-      - name: Análise Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: .semgrep.yaml  # Pode ser p/default (auto) ou um caminho para ruleset custom
+      - name: Instalar Semgrep
+        run: pip install semgrep
+
+      - name: Rodar Semgrep
+        run: semgrep --config .semgrep.yaml
 
       - name: Instalar OWASP Dependency-Check
         run: |
