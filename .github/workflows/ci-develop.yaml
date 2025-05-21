@@ -52,9 +52,9 @@ jobs:
 #          ./dependency-check/dependency-check/bin/dependency-check.sh --project "Lib Project" --scan . --format ALL --failOnCVSS 7
 
 #      TEMPORÁRIO, ATÉ CONSEGUIR API KEY DO NVD
-      - name: Rodar OWASP Dependency-Check (offline)
+      - name: Rodar OWASP Dependency-Check offline
         run: |
-          ./dependency-check/dependency-check/bin/dependency-check.sh --disableNvd --project "Lib Project" --scan . --format ALL
+          ./dependency-check/dependency-check/bin/dependency-check.sh --noupdate --project "Meu Projeto" --scan . --format ALL
 
       - name: Upload Relatório OWASP (HTML)
         uses: actions/upload-artifact@v4
