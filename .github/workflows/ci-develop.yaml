@@ -37,7 +37,7 @@ jobs:
         run: mvn sonar:sonar -Dsonar.projectKey=gregoryfeijon_object-factory-util-spring-lib -Dsonar.organization=gregory-feijon -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
 
       - name: Análise Semgrep
-        uses: returntocorp/semgrep-action@v1
+        uses: returntocorp/semgrep-action@v2
         with:
           config: .semgrep.yaml  # Pode ser p/default (auto) ou um caminho para ruleset custom
 
