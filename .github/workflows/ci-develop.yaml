@@ -34,7 +34,7 @@ jobs:
       - name: Análise no SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar -Dsonar.projectKey=seu-usuario_seu-projeto -Dsonar.organization=seu-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
+        run: mvn sonar:sonar -Dsonar.projectKey=gregoryfeijon_object-factory-util-spring-lib -Dsonar.organization=gregory-feijon -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
 
       - name: Baixar Semgrep
         run: |
