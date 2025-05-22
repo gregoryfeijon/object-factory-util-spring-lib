@@ -1,6 +1,7 @@
 package io.github.gregoryfeijon.utils.serialization;
 
 
+import com.google.gson.Gson;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.FieldUtil;
@@ -8,10 +9,10 @@ import io.github.gregoryfeijon.utils.ReflectionUtil;
 import io.github.gregoryfeijon.utils.gson.GsonTypesUtil;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerAdapter;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
-import com.google.gson.Gson;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
@@ -606,7 +607,7 @@ public final class ObjectFactoryUtil {
     private static void verifyType(Type genericType) throws ClassNotFoundException, BeanInstantiationException {
         ParameterizedType typeTest = (ParameterizedType) genericType;
         for (Type type : typeTest.getActualTypeArguments()) {
-            Class<?> clazz = Class.forName(type.getTypeName());
+            Class<?> clazz = ClassUtils.getClass(type.getTypeName());
             if (!isPrimitiveOrEnum(clazz) && !isWrapperType(clazz)) {
                 BeanUtils.instantiateClass(clazz);
             }
@@ -634,7 +635,7 @@ public final class ObjectFactoryUtil {
      * @throws ClassNotFoundException - exception lançada para testar se o tipo existe
      */
     private static Class<?> getRawType(Type genericType) throws ClassNotFoundException {
-        return Class.forName(((ParameterizedType) genericType).getRawType().getTypeName());
+        return ClassUtils.getClass(((ParameterizedType) genericType).getRawType().getTypeName());
     }
 
     /**
