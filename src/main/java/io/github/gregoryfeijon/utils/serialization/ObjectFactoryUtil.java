@@ -267,8 +267,8 @@ public final class ObjectFactoryUtil {
      *
      * @param <T>    - define o tipo do objeto retornado
      * @param <S>    - define o tipo do objeto copiado
-     * @param source S
-     * @param dest   T
+     * @param source &lt;S&gt;
+     * @param dest   &lt;T&gt;
      */
     private static <T, S> void verifySourceAndDestObjects(S source, T dest) {
         verifySourceObject(source);
@@ -281,7 +281,7 @@ public final class ObjectFactoryUtil {
      * <strong> Método para verificar se o objeto a ser copiado é válido.</strong>
      *
      * @param <S>    - define o tipo do objeto copiado
-     * @param source S
+     * @param source &lt;S&gt;
      */
     private static <S> void verifySourceObject(S source) {
         if (source == null) {
@@ -308,8 +308,8 @@ public final class ObjectFactoryUtil {
      *
      * @param <T>    - define o tipo do objeto retornado
      * @param <S>    - define o tipo do objeto copiado
-     * @param source - S
-     * @param dest   - T
+     * @param source - &lt;S&gt;
+     * @param dest   - &lt;T&gt;
      * @return {@linkplain List}&lt{@linkplain Field}&gt
      */
     private static <T, S> List<Field> getFieldsToCopy(S source, T dest) {
@@ -378,7 +378,7 @@ public final class ObjectFactoryUtil {
      * @param <S>         - define o tipo do objeto copiado
      * @param sourceField - {@linkplain Field}
      * @param destField   - {@linkplain Field}
-     * @param source      - S
+     * @param source      - &lt;S&gt;
      * @return {@linkplain Object}
      */
     private static <S> Object verifyValue(Field sourceField, Field destField, S source) {

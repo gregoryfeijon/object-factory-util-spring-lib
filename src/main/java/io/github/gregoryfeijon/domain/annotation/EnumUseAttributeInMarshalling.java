@@ -15,9 +15,9 @@ import java.lang.annotation.Target;
  * Example usage:
  * <pre>
  * public enum PaymentType {
- *     @EnumUseAttributeInMarshalling(defaultAttributeName = "code")
+ *     &#64;EnumUseAttributeInMarshalling(defaultAttributeName = "code")
  *     CREDIT_CARD("CC"),
- *     @EnumUseAttributeInMarshalling(defaultAttributeName = "code")
+ *     &#64;EnumUseAttributeInMarshalling(defaultAttributeName = "code")
  *     DEBIT_CARD("DC");
  *
  *     private final String code;

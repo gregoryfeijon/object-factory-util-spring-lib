@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * public class User {
  *     private String username;
  *
- *     @Exclude
+ *     &#64;Exclude
  *     private String password;
  * }
  * </pre>

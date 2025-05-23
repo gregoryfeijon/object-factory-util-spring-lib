@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * <p>
  * Example usage:
  * <pre>
- * @ObjectConstructor(exclude = {"password", "temporaryData"})
+ * &#64;ObjectConstructor(exclude = {"password", "temporaryData"})
  * public class User {
  *     private String username;
  *     private String password;
