@@ -100,8 +100,8 @@ public final class ObjectFactoryUtil {
      * <p>
      *
      * @param <T>            - define o tipo da collection resultante
-     * @param entitiesToCopy - {@linkplain Collection}&lt?&gt
-     * @param returnType     - {@linkplain Class}&ltT&gt
+     * @param entitiesToCopy - {@linkplain Collection}&lt;?&gt;
+     * @param returnType     - {@linkplain Class}&lt;T&gt;
      * @return {@linkplain List}&ltT&gt
      */
     public static <T> List<T> copyAllObjectsFromCollection(Collection<?> entitiesToCopy, Class<T> returnType) {
@@ -116,8 +116,8 @@ public final class ObjectFactoryUtil {
      *
      * @param <T>            - define o tipo da collection copiada
      * @param <U>            - define o tipo da collection resultante, gerada através do supplier
-     * @param entitiesToCopy - {@linkplain Collection}&ltT&gt
-     * @param supplier       - {@linkplain Supplier}&ltU&gt
+     * @param entitiesToCopy - {@linkplain Collection}&lt;T&gt;
+     * @param supplier       - {@linkplain Supplier}&lt;U&gt;
      * @return U
      */
     public static <T, U extends Collection<T>> U copyAllObjectsFromCollection(Collection<T> entitiesToCopy,
@@ -330,8 +330,8 @@ public final class ObjectFactoryUtil {
      * <strong>Método que adiciona os campos especificados na annotation especificada no tipo da classe de destino dos
      * dados copiados.</strong>
      *
-     * @param fieldsToRemove {@linkplain List}&lt{@linkplain Field}&gt
-     * @param sourceFields   {@linkplain List}&lt{@linkplain Field}&gt
+     * @param fieldsToRemove {@linkplain List}&lt;{@linkplain Field}&gt;
+     * @param sourceFields   {@linkplain List}&lt;{@linkplain Field}&gt;
      * @param exclude        {@linkplain String}[]
      */
     private static void getFieldsAnnotatedToExclude(List<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
@@ -351,7 +351,7 @@ public final class ObjectFactoryUtil {
      * retorna um array vazio.</strong>
      *
      * @param <T>  - method type definer
-     * @param dest - &ltT&gt
+     * @param dest - &lt;T&gt;
      * @return {@linkplain String}[]
      */
     private static <T> String[] getExcludeFromAnnotation(T dest) {
@@ -439,7 +439,7 @@ public final class ObjectFactoryUtil {
      * <strong> Método para encontrar a constante enum equivalente à String que está
      * sendo copiada.</strong>
      *
-     * @param type        - {@linkplain Class}&lt?&gt
+     * @param type        - {@linkplain Class}&lt;?&gt;
      * @param sourceValue {@linkplain Object}
      * @return {@linkplain Object}
      */
@@ -495,7 +495,7 @@ public final class ObjectFactoryUtil {
      * <i>Wrappers</i>.</strong>
      *
      * @param sourceValue - {@linkplain Object}
-     * @param clazz       - {@linkplain Class}&lt?&gt
+     * @param clazz       - {@linkplain Class}&lt;?&gt;
      * @return {@linkplain Object}
      */
     private static Object serializingClone(Object sourceValue, Class<?> clazz) {
@@ -510,7 +510,7 @@ public final class ObjectFactoryUtil {
      * casos de <i>Wrappers</i> e objetos.</strong>
      *
      * @param sourceValue - {@linkplain Object}
-     * @param clazz       - {@linkplain Class}&lt?&gt
+     * @param clazz       - {@linkplain Class}&lt;?&gt;
      * @return {@linkplain Object}
      */
     private static Object serializingCloneObjects(Object sourceValue, Class<?> clazz) {
@@ -630,7 +630,7 @@ public final class ObjectFactoryUtil {
      * atributo.</strong>
      *
      * @param genericType - {@linkplain Type}
-     * @return {@linkplain Class}&lt?&gt
+     * @return {@linkplain Class}&lt;?&gt;
      * @throws ClassNotFoundException - exception lançada para testar se o tipo existe
      */
     private static Class<?> getRawType(Type genericType) throws ClassNotFoundException {
@@ -641,7 +641,7 @@ public final class ObjectFactoryUtil {
      * <strong>Método para verificar se é um tipo primitivo ou
      * {@linkplain Enum}.</strong>
      *
-     * @param type - {@linkplain Class}&lt?&gt
+     * @param type - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isPrimitiveOrEnum(Class<?> type) {
@@ -652,7 +652,7 @@ public final class ObjectFactoryUtil {
      * <strong>Método para verificar se é uma {@linkplain Collection} ou um
      * {@linkplain Map}.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isClassMapCollection(Class<?> clazz) {
@@ -662,7 +662,7 @@ public final class ObjectFactoryUtil {
     /**
      * <strong>Método para verificar se é uma {@linkplain Collection}.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isCollection(Class<?> clazz) {
@@ -672,7 +672,7 @@ public final class ObjectFactoryUtil {
     /**
      * <strong>Método para verificar se é um {@linkplain Map}.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isMap(Class<?> clazz) {
@@ -683,7 +683,7 @@ public final class ObjectFactoryUtil {
      * <strong>Método responsável por verificar se o tipo do valor sendo copiado é
      * um wrapper.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return {@linkplain Boolean}
      */
     private static boolean isWrapperType(Class<?> clazz) {

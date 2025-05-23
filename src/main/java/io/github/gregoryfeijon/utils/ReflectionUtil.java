@@ -110,8 +110,8 @@ public final class ReflectionUtil {
      * menos 1 for diferente, retorna false.</strong>
      *
      * @param <T>     - type of objects to compare
-     * @param entity1 - &ltT&gt
-     * @param entity2 - &ltT&gt
+     * @param entity1 - &lt;T&gt;
+     * @param entity2 - &lt;T&gt;
      * @return {@linkplain Boolean}
      * @throws InvocationTargetException - Exceção lançada se tiver algum erro na comparação das listas de métodos get
      * @throws IllegalAccessException    - Exceção lançada se tiver algum erro na comparação das listas de métodos get
@@ -130,8 +130,8 @@ public final class ReflectionUtil {
      * comparação.</strong>
      *
      * @param <T>         - type of objects to compare
-     * @param entity1     - &ltT&gt
-     * @param entity2     - &ltT&gt
+     * @param entity1     - &lt;T&gt;
+     * @param entity2     - &lt;T&gt;
      * @param filterNames - {@linkplain String}[]
      * @return {@linkplain Boolean}
      * @throws InvocationTargetException - Execeção lançada se tiver algum erro na comparação dos objetos
@@ -153,8 +153,8 @@ public final class ReflectionUtil {
      * comparação ou utilizar os campos especificados, excluindo os demais.</strong>
      *
      * @param <T>         - type of objects to compare
-     * @param entity1     - &ltT&gt
-     * @param entity2     - &ltT&gt
+     * @param entity1     - &lt;T&gt;
+     * @param entity2     - &lt;T&gt;
      * @param filterNames - {@linkplain String}[]
      * @param remove      {@linkplain Boolean} - true: exclui campos; false: utiliza
      *                    <p>
@@ -174,8 +174,8 @@ public final class ReflectionUtil {
      * estabelecidas.</strong>
      *
      * @param <T>         - type of objects to compare
-     * @param entity1     - &ltT&gt
-     * @param entity2     - &ltT&gt
+     * @param entity1     - &lt;T&gt;
+     * @param entity2     - &lt;T&gt;
      * @param filterNames - {@linkplain String}[]
      * @param remove      {@linkplain Boolean} - true: exclui campos; false: utiliza
      *                    <p>
@@ -212,10 +212,10 @@ public final class ReflectionUtil {
      *
      * <p>
      *
-     * @param listMethod  - {@linkplain List}&lt{@linkplain Method}&gt
+     * @param listMethod  - {@linkplain List}&lt;{@linkplain Method}&gt;
      * @param filterNames - {@linkplain String}[]
      * @param remove      - {@linkplain Boolean}
-     * @return {@linkplain List}&lt{@linkplain Method}&gt
+     * @return {@linkplain List}&lt;{@linkplain Method}&gt;
      */
     public static List<Method> filterList(List<Method> listMethod, String[] filterNames, boolean remove) {
         List<Method> methodsFiltered = new LinkedList<>();
@@ -267,8 +267,8 @@ public final class ReflectionUtil {
      *
      * <p>
      *
-     * @param getsEntity1 - {@linkplain List}&lt{@linkplain Method}&gt
-     * @param getsEntity2 - {@linkplain List}&lt{@linkplain Method}&gt
+     * @param getsEntity1 - {@linkplain List}&lt;{@linkplain Method}&gt;
+     * @param getsEntity2 - {@linkplain List}&lt;{@linkplain Method}&gt;
      * @param entity1     - {@linkplain Object}
      * @param entity2     - {@linkplain Object}
      * @return {@linkplain Boolean}
