@@ -29,6 +29,9 @@ import static io.github.gregoryfeijon.config.jackson.serialization.JacksonSerial
 @Slf4j
 public class EnumUseAttributeDeserializer extends StdDeserializer<Enum<?>> implements ContextualDeserializer {
 
+    /**
+     * The enum class this deserializer handles.
+     */
     private final Class<? extends Enum<?>> enumType;
 
     /**
