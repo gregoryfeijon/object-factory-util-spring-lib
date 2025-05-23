@@ -22,16 +22,27 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class for reflection operations.
+ * <p>
+ * This class provides methods for finding and invoking getters and setters,
+ * working with fields, and performing other reflection-based operations.
+ *
+ * @author gregory.feijon
+ */
+
 @SuppressWarnings("java:S6204")
 //warning do .toList() suprimida, uma vez que não se aplica nessa classe, que é uma classe útil
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ReflectionUtil {
 
     /**
-     * <strong> Método para obter todos os getters de um objeto.</strong>
+     * Finds all getter methods of an object.
+     * <p>
+     * A method is considered a getter if its name starts with "get" or "is".
      *
-     * @param object - {@linkplain Object}
-     * @return {@linkplain List}&lt{@linkplain Method}&gt
+     * @param object The object to find getters for
+     * @return A list of getter methods
      */
     public static List<Method> findGetMethods(Object object) {
         return getMethodsAsList(object).stream().filter(method -> method.getName().toLowerCase().startsWith("get")
@@ -39,10 +50,12 @@ public final class ReflectionUtil {
     }
 
     /**
-     * <strong>Método para obter todos os setters de um objeto.</strong>
+     * Finds all setter methods of an object.
+     * <p>
+     * A method is considered a setter if its name starts with "set".
      *
-     * @param object - {@linkplain Object}
-     * @return {@linkplain List}&lt{@linkplain Method}&gt
+     * @param object The object to find setters for
+     * @return A list of setter methods
      */
     public static List<Method> findSetMethods(Object object) {
         return getMethodsAsList(object).stream()
@@ -51,45 +64,36 @@ public final class ReflectionUtil {
     }
 
     /**
-     * <strong>Método para obter todos os getters e setters de um objeto.</strong>
+     * Gets all methods of an object as a list.
      *
-     * @param object - {@linkplain Object}
-     * @return {@linkplain Collection}&lt{@linkplain Method}&gt
+     * @param object The object to get methods for
+     * @return A collection of all methods
      */
     public static Collection<Method> getMethodsAsList(Object object) {
         return Arrays.asList(ReflectionUtils.getAllDeclaredMethods(object.getClass()));
     }
 
     /**
-     * <strong>Método para obter todos os campos de um objeto, incluido os
-     * provenientes de herança.</strong>
+     * Gets all fields of an object, including inherited fields.
      *
-     * @param object - {@linkplain Object}
-     * @return {@linkplain List}&lt{@linkplain Field}&gt
+     * @param object The object to get fields for
+     * @return A collection of fields
      */
     public static Collection<Field> getFieldsAsCollection(Object object) {
         return getFieldsAsCollection(object, true);
     }
 
     /**
-     * <strong> Método para obter os campos de um objeto, incluindo ou não os
-     * <p>
-     * provenientes de herança.</strong>
+     * Gets all fields of an object, with an option to include inherited fields.
      *
-     * @param object            {@linkplain Object} - objeto do qual serão obtidos
-     *                          <p>
-     *                          os atributos
-     * @param getFromSuperclass {@linkplain Boolean} - boolean para especificar se
-     *                          <p>
-     *                          deve ou não verificar as super classes para obter
-     *                          <p>
-     *                          seus atributos.
-     * @return {@linkplain Collection}&lt{@linkplain Field}&gt
+     * @param object         The object to get fields for
+     * @param includeParents Whether to include fields from parent classes
+     * @return A collection of fields
      */
-    public static Collection<Field> getFieldsAsCollection(Object object, boolean getFromSuperclass) {
+    public static Collection<Field> getFieldsAsCollection(Object object, boolean includeParents) {
         Class<?> clazz = object.getClass();
         Collection<Field> fields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
-        if (getFromSuperclass && clazz.getSuperclass() != null) {
+        if (includeParents && clazz.getSuperclass() != null) {
             clazz = clazz.getSuperclass();
             while (clazz != null) {
                 fields.addAll(Arrays.stream(clazz.getDeclaredFields()).toList());
@@ -293,6 +297,16 @@ public final class ReflectionUtil {
         return retorno;
     }
 
+    /**
+     * Checks if collections need to be compared differently when one value is null.
+     * <p>
+     * When comparing collections where one is null and the other isn't,
+     * this method checks if the non-null collection is empty.
+     *
+     * @param valorSalvo  The saved value (may be null)
+     * @param valorUpdate The update value (may be null)
+     * @return true if one value is null and the other is an empty collection
+     */
     private static boolean verificaTipoValor(Object valorSalvo, Object valorUpdate, Class<?> returnType) {
         boolean retorno;
         if (returnType.isAssignableFrom(String.class)) {
@@ -317,18 +331,25 @@ public final class ReflectionUtil {
         return retorno;
     }
 
+    /**
+     * Checks if a collection is empty.
+     *
+     * @param valor The collection to check
+     * @return true if the collection is empty, false otherwise
+     */
     private static boolean isCollectionEmpty(Object valor) {
         return CollectionUtils.isEmpty((Collection<?>) valor);
     }
 
     /**
-     * <strong>Comparação de {@linkplain String strings}, que considera null e vazia
+     * Checks if strings need to be compared differently when one value is null.
      * <p>
-     * como valores iguais.</strong>
+     * When comparing strings where one is null and the other isn't,
+     * this method checks if the non-null string is empty.
      *
-     * @param valorSalvo  - {@linkplain Object}
-     * @param valorUpdate - {@linkplain Object}
-     * @return {@linkplain Boolean}
+     * @param valorSalvo  The saved value (may be null)
+     * @param valorUpdate The update value (may be null)
+     * @return true if one value is null and the other is an empty string
      */
     private static boolean verificaStrings(Object valorSalvo, Object valorUpdate) {
         boolean retorno = false;
@@ -341,23 +362,24 @@ public final class ReflectionUtil {
     }
 
     /**
-     * <strong>Verificação de {@linkplain String string} vazia.</strong>
+     * Checks if a string is empty.
      *
-     * @param valor - {@linkplain Object}
-     * @return {@linkplain Boolean}
+     * @param valor The string to check
+     * @return true if the string is empty, false otherwise
      */
     private static boolean isValorEmpty(Object valor) {
         return ((String) valor).isEmpty();
     }
 
     /**
-     * <strong>Comparação de {@linkplain Number numeros}, que considera null e 0
+     * Checks if numbers need to be compared differently when one value is null.
      * <p>
-     * como valores iguais.</strong>
+     * When comparing numbers where one is null and the other isn't,
+     * this method checks if the non-null number is zero.
      *
-     * @param valorSalvo  - {@linkplain Object}
-     * @param valorUpdate - {@linkplain Object}
-     * @return {@linkplain Boolean}
+     * @param valorSalvo  The saved value (may be null)
+     * @param valorUpdate The update value (may be null)
+     * @return true if one value is null and the other is zero
      */
     private static boolean verificaNumber(Object valorSalvo, Object valorUpdate) {
         boolean retorno = false;
@@ -370,16 +392,27 @@ public final class ReflectionUtil {
     }
 
     /**
-     * <strong>Verificação de {@linkplain Number numeros} com valor 0.</strong>
+     * Checks if a number is zero.
      *
-     * @param valorUpdate - {@linkplain Object}
-     * @return {@linkplain Boolean}
+     * @param valorUpdate The number to check
+     * @return true if the number is zero, false otherwise
      */
     private static boolean isValorZero(Object valorUpdate) {
         BigDecimal aux = BigDecimal.valueOf(((Number) valorUpdate).doubleValue());
         return aux.compareTo(BigDecimal.ZERO) == 0;
     }
 
+    /**
+     * Safely gets a value using a getter function, wrapping the result in an Optional.
+     * <p>
+     * This method handles null objects by returning an empty Optional.
+     *
+     * @param <T>    The type of the object
+     * @param <R>    The type of the return value
+     * @param obj    The object to get a value from
+     * @param getter A function that extracts a value from the object
+     * @return An Optional containing the value, or empty if the object is null or the value is null
+     */
     public static <T, R> Optional<R> safeGet(T obj, Function<T, R> getter) {
         if (obj == null) {
             return Optional.empty();
@@ -387,6 +420,18 @@ public final class ReflectionUtil {
         return Optional.ofNullable(getter.apply(obj));
     }
 
+    /**
+     * Safely gets a value using a getter function, returning a default value if null.
+     * <p>
+     * This method handles null objects by returning the default value.
+     *
+     * @param <T>          The type of the object
+     * @param <R>          The type of the return value
+     * @param obj          The object to get a value from
+     * @param getter       A function that extracts a value from the object
+     * @param defaultValue The default value to return if the object or value is null
+     * @return The value from the getter, or the default value if null
+     */
     public static <T, R> R safeGetWithDefaultValue(T obj, Function<T, R> getter, R defaultValue) {
         if (obj == null) {
             return defaultValue;
@@ -394,6 +439,13 @@ public final class ReflectionUtil {
         return safeGet(obj, getter).orElse(defaultValue);
     }
 
+    /**
+     * Removes null elements from a list.
+     *
+     * @param <T>  The type of elements in the list
+     * @param list The list to remove nulls from
+     * @return A new list with null elements removed
+     */
     public static <T> List<T> removeNulls(List<T> list) {
         return CollectionUtils.isEmpty(list) ? List.of() :
                 list.stream()
@@ -401,6 +453,18 @@ public final class ReflectionUtil {
                         .collect(Collectors.toList());
     }
 
+    /**
+     * Gets the value of a field using its getter method.
+     * <p>
+     * This method dynamically constructs a getter name based on the field name
+     * (using "get" or "is" prefix) and invokes it.
+     *
+     * @param <T>          The type of the object containing the field
+     * @param field        The field to get the value for
+     * @param getterObject The object containing the field
+     * @return The value of the field
+     * @throws ApiException If the getter cannot be found or invoked
+     */
     public static <T> Object getValueDynamicallyThroughGetterNameFromField(Field field, T getterObject) {
         String getterPrefix = field.getType() == boolean.class ? "is" : "get";
 
@@ -408,6 +472,15 @@ public final class ReflectionUtil {
         return getValueDynamicallyThroughGetterName(getterName, getterObject);
     }
 
+    /**
+     * Gets a value by invoking a getter method by name.
+     *
+     * @param <T>          The type of the object containing the getter
+     * @param getterName   The name of the getter method
+     * @param getterObject The object containing the getter
+     * @return The value returned by the getter
+     * @throws ApiException If the getter cannot be found or invoked
+     */
     public static <T> Object getValueDynamicallyThroughGetterName(String getterName, T getterObject) {
         var getter = findGetterMethod(getterName, getterObject);
         if (!Modifier.isPublic(getter.getModifiers())) {
@@ -420,6 +493,15 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * Finds a getter method by name.
+     *
+     * @param <T>          The type of the object containing the getter
+     * @param getterName   The name of the getter method
+     * @param getterObject The object containing the getter
+     * @return The getter method
+     * @throws ApiException If the getter cannot be found
+     */
     private static <T> Method findGetterMethod(String getterName, T getterObject) {
         var allGetters = findGetMethods(getterObject);
         if (CollectionUtils.isEmpty(allGetters)) {
@@ -434,11 +516,34 @@ public final class ReflectionUtil {
         return opGetter.get();
     }
 
+    /**
+     * Set the value of a field using its setter method.
+     * <p>
+     * This method dynamically constructs a setter name based on the field name
+     * (using "set" prefix) and invokes it.
+     *
+     * @param <T>         The type of the object containing the setter
+     * @param <S>         The type of the value to set
+     * @param field       The field to set the value
+     * @param setterClass The object containing the setter
+     * @param valueToSet  The value to set
+     * @throws ApiException If the setter cannot be found or invoked
+     */
     public static <T, S> void setValueDynamicallyThroughSetterNameFromField(Field field, T setterClass, S valueToSet) {
         String setterName = "set" + StringUtils.capitalize(field.getName());
         setValueDynamicallyThroughSetterName(setterName, setterClass, valueToSet);
     }
 
+    /**
+     * Sets a value by invoking a setter method by name.
+     *
+     * @param <T>         The type of the object containing the setter
+     * @param <S>         The type of the value to set
+     * @param setterName  The name of the setter method
+     * @param setterClass The object containing the setter
+     * @param valueToSet  The value to set
+     * @throws ApiException If the setter cannot be found or invoked
+     */
     public static <T, S> void setValueDynamicallyThroughSetterName(String setterName, T setterClass, S valueToSet) {
         var setter = findSetterMethod(setterName, setterClass);
         if (!Modifier.isPublic(setter.getModifiers())) {
@@ -454,6 +559,15 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * Finds a setter method by name.
+     *
+     * @param <T>         The type of the object containing the setter
+     * @param setterName  The name of the setter method
+     * @param setterClass The object containing the setter
+     * @return The setter method
+     * @throws ApiException If the setter cannot be found
+     */
     private static <T> Method findSetterMethod(String setterName, T setterClass) {
         var allSetters = findSetMethods(setterClass);
         if (CollectionUtils.isEmpty(allSetters)) {
