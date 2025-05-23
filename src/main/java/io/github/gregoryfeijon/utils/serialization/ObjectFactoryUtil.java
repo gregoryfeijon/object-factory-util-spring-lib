@@ -102,7 +102,7 @@ public final class ObjectFactoryUtil {
      * @param <T>            - define o tipo da collection resultante
      * @param entitiesToCopy - {@linkplain Collection}&lt;?&gt;
      * @param returnType     - {@linkplain Class}&lt;T&gt;
-     * @return {@linkplain List}&ltT&gt
+     * @return {@linkplain List}&lt;T&gt;
      */
     public static <T> List<T> copyAllObjectsFromCollection(Collection<?> entitiesToCopy, Class<T> returnType) {
         verifyCollection(entitiesToCopy);
@@ -310,7 +310,7 @@ public final class ObjectFactoryUtil {
      * @param <S>    - define o tipo do objeto copiado
      * @param source - &lt;S&gt;
      * @param dest   - &lt;T&gt;
-     * @return {@linkplain List}&lt{@linkplain Field}&gt
+     * @return {@linkplain List}&lt;{@linkplain Field}&gt;
      */
     private static <T, S> List<Field> getFieldsToCopy(S source, T dest) {
         List<Field> sourceFields = new ArrayList<>(ReflectionUtil.getFieldsAsCollection(source));
