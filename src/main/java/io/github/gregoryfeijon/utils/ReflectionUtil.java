@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -81,6 +82,16 @@ public final class ReflectionUtil {
      */
     public static Collection<Field> getFieldsAsCollection(Object object) {
         return getFieldsAsCollection(object, true);
+    }
+
+    /**
+     * Gets all fields of an object, including inherited fields.
+     *
+     * @param object The object to get fields for
+     * @return A collection of fields
+     */
+    public static <T extends Collection<Field>> T getFieldsAsCollection(Object object, Supplier<T> collectionType) {
+        return getFieldsAsCollection(object, true).stream().collect(Collectors.toCollection(collectionType));
     }
 
     /**

@@ -253,12 +253,16 @@ public final class ObjectFactoryUtil {
     public static <T, S> void createFromObject(S source, T dest) {
         verifySourceAndDestObjects(source, dest);
         List<Field> sourceFields = getFieldsToCopy(source, dest);
-        sourceFields.parallelStream().forEach(sourceField -> ReflectionUtil.getFieldsAsCollection(dest).stream()
-                .filter(destField -> destField.getName().equalsIgnoreCase(sourceField.getName()))
-                .findAny().ifPresent(destField -> {
-                    Object sourceValue = verifyValue(sourceField, destField, source);
-                    FieldUtil.setProtectedFieldValue(destField, dest, sourceValue);
-                }));
+        List<Field> allDestFields = ReflectionUtil.getFieldsAsCollection(dest, ArrayList::new);
+        sourceFields.parallelStream()
+                .forEach(sourceField -> allDestFields.stream()
+                        .filter(destField -> destField.getName().equalsIgnoreCase(sourceField.getName()))
+                        .findAny()
+                        .ifPresent(destField -> {
+                            Object sourceValue = verifyValue(sourceField, destField, source);
+                            FieldUtil.setProtectedFieldValue(destField, dest, sourceValue);
+                        })
+                );
     }
 
     /**
