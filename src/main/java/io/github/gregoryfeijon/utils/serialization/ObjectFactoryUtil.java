@@ -31,7 +31,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -263,7 +262,7 @@ public final class ObjectFactoryUtil {
     }
 
     private static <S, T> Map<Field, Field> createSourceDestFieldMaps(S source, T dest) {
-        var sourceFields = ReflectionUtil.getFieldsAsCollection(source, ArrayList::new);
+        var sourceFields = getFieldsToCopy(source, dest);
         var destFields = ReflectionUtil.getFieldsAsCollection(dest, ArrayList::new);
 
         if (sourceFields.isEmpty() || destFields.isEmpty()) {
