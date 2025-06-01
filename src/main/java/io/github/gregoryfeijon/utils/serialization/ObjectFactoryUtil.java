@@ -2,6 +2,7 @@ package io.github.gregoryfeijon.utils.serialization;
 
 
 import com.google.gson.Gson;
+import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.FieldUtil;
@@ -17,6 +18,7 @@ import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.SerializationUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -29,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -260,27 +263,40 @@ public final class ObjectFactoryUtil {
     }
 
     private static <S, T> Map<Field, Field> createSourceDestFieldMaps(S source, T dest) {
-        List<Field> sourceFields = getFieldsToCopy(source, dest);
-        if (sourceFields.isEmpty()) {
+        var sourceFields = ReflectionUtil.getFieldsAsCollection(source, ArrayList::new);
+        var destFields = ReflectionUtil.getFieldsAsCollection(dest, ArrayList::new);
+
+        if (sourceFields.isEmpty() || destFields.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        List<Field> allDestFields = ReflectionUtil.getFieldsAsCollection(dest, ArrayList::new);
-        if (allDestFields.isEmpty()) {
-            return Collections.emptyMap();
-        }
+        Map<String, Field> sourceFieldMap = buildFieldKeyMap(sourceFields);
+        Map<String, Field> destFieldMap = buildFieldKeyMap(destFields);
 
-        return sourceFields.stream()
-                .map(sourceField -> Map.entry(sourceField,
-                        allDestFields.stream()
-                                .filter(destField -> destField.getName().equalsIgnoreCase(sourceField.getName()))
-                                .findFirst()
-                                .orElse(null)
-                ))
-                .filter(entry -> entry.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return sourceFieldMap.entrySet().stream()
+                .filter(entry -> destFieldMap.containsKey(entry.getKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getValue,
+                        entry -> destFieldMap.get(entry.getKey())
+                ));
     }
 
+
+    private static Map<String, Field> buildFieldKeyMap(List<Field> fields) {
+        return fields.stream().collect(Collectors.toMap(
+                ObjectFactoryUtil::resolveFieldKey,
+                Function.identity(),
+                (a, b) -> a
+        ));
+    }
+
+    private static String resolveFieldKey(Field field) {
+        FieldCopyName ann = field.getAnnotation(FieldCopyName.class);
+        if (ann != null && StringUtils.hasText(ann.value())) {
+            return ann.value().toLowerCase();
+        }
+        return field.getName().toLowerCase();
+    }
 
     /**
      * <strong>Método para verificar se os objetos de origem e destino são
