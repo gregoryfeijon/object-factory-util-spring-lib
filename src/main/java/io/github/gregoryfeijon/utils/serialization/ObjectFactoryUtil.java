@@ -1,6 +1,8 @@
 package io.github.gregoryfeijon.utils.serialization;
 
 
+import com.google.gson.Gson;
+import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.FieldUtil;
@@ -8,14 +10,15 @@ import io.github.gregoryfeijon.utils.ReflectionUtil;
 import io.github.gregoryfeijon.utils.gson.GsonTypesUtil;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerAdapter;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
-import com.google.gson.Gson;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.SerializationUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -48,6 +51,15 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
 
+/**
+ * Utility class for creating deep copies of objects.
+ * <p>
+ * This class provides methods to create copies of objects, including complex objects
+ * with nested structures, collections, and primitive types. It uses a combination of
+ * reflection, serialization, and direct field copying to achieve deep copying.
+ *
+ * @author gregory.feijon
+ */
 @SuppressWarnings("java:S6204")
 //warning do .toList() suprimida, uma vez que não se aplica nessa classe, que é uma classe útil
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -66,12 +78,14 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método que retorna todos os objetos de uma {@linkplain Collection
-     * coleção} copiados.</strong>
+     * Creates deep copies of all objects in a collection.
+     * <p>
+     * This method creates a new list containing deep copies of all objects in the provided collection.
      *
-     * @param <T>            - define o tipo da collection copiada e da resultante
-     * @param entitiesToCopy - {@linkplain Collection}&ltT&gt
-     * @return {@linkplain List}&ltT&gt
+     * @param <T>            The type of objects in the collection
+     * @param entitiesToCopy The collection of objects to copy
+     * @return A list containing deep copies of the original objects
+     * @throws ApiException If the collection is empty or if an error occurs during copying
      */
     public static <T> List<T> copyAllObjectsFromCollection(Collection<T> entitiesToCopy) {
         verifyCollection(entitiesToCopy);
@@ -88,9 +102,9 @@ public final class ObjectFactoryUtil {
      * <p>
      *
      * @param <T>            - define o tipo da collection resultante
-     * @param entitiesToCopy - {@linkplain Collection}&lt?&gt
-     * @param returnType     - {@linkplain Class}&ltT&gt
-     * @return {@linkplain List}&ltT&gt
+     * @param entitiesToCopy - {@linkplain Collection}&lt;?&gt;
+     * @param returnType     - {@linkplain Class}&lt;T&gt;
+     * @return {@linkplain List}&lt;T&gt;
      */
     public static <T> List<T> copyAllObjectsFromCollection(Collection<?> entitiesToCopy, Class<T> returnType) {
         verifyCollection(entitiesToCopy);
@@ -104,8 +118,8 @@ public final class ObjectFactoryUtil {
      *
      * @param <T>            - define o tipo da collection copiada
      * @param <U>            - define o tipo da collection resultante, gerada através do supplier
-     * @param entitiesToCopy - {@linkplain Collection}&ltT&gt
-     * @param supplier       - {@linkplain Supplier}&ltU&gt
+     * @param entitiesToCopy - {@linkplain Collection}&lt;T&gt;
+     * @param supplier       - {@linkplain Supplier}&lt;U&gt;
      * @return U
      */
     public static <T, U extends Collection<T>> U copyAllObjectsFromCollection(Collection<T> entitiesToCopy,
@@ -115,37 +129,34 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong> Método para copiar todos os elementos de uma {@linkplain Collection
-     * coleção} e retornar em um tipo escolhido de {@linkplain Collection
-     * coleção}.</strong>
-     *
+     * Creates deep copies of all objects in a collection, converting them to a different type.
      * <p>
-     * O Tipo da coleção retornada não precisa ser igual ao tipo da coleção copiada,
-     * basta que os objetos possuam atributos com o mesmo nome, que os valores
-     * desses atributos serão copiados.
-     * <p>
+     * This method creates a new collection containing deep copies of all objects in the
+     * provided collection, converting each object to the specified target type.
      *
-     * @param <T>            - define o tipo dos objetos da collection resultante
-     * @param <U>            - define o tipo da collection resultante, gerada através do supplier
-     * @param entitiesToCopy - {@linkplain Collection}&lt?&gt
-     * @param supplier       - {@linkplain Supplier}&ltU&gt
-     * @param returnType     - {@linkplain Class}&ltT&gt
-     * @return U
+     * @param <T>            The target type
+     * @param <S>            The source type
+     * @param <U>            The type of the resulting collection
+     * @param entitiesToCopy The collection of objects to copy
+     * @param returnType     The class of the target type
+     * @param supplier       A supplier that creates the target collection
+     * @return A collection of the specified type containing deep copies of the original objects
+     * @throws ApiException If the collection is empty or if an error occurs during copying
      */
-    public static <T, U extends Collection<T>> U copyAllObjectsFromCollection(Collection<?> entitiesToCopy,
-                                                                              Supplier<U> supplier, Class<T> returnType) {
+    public static <T, S, U extends Collection<T>> U copyAllObjectsFromCollection(Collection<S> entitiesToCopy,
+                                                                                 Supplier<U> supplier, Class<T> returnType) {
         verifyCollectionAndSupplier(entitiesToCopy, supplier);
         return entitiesToCopy.stream().map(createCopy(returnType)).collect(Collectors.toCollection(supplier));
     }
 
     /**
-     * <strong> Método para verificar se a {@linkplain Collection collection}
-     * copiada ou o {@linkplain Supplier supplier} estão null. </strong>
+     * Verifies if a collection and a supplier are both non-null.
      *
-     * @param <T>            - define o tipo da collection copiada
-     * @param <U>            - define o tipo da collection resultante, gerada através do supplier
-     * @param entitiesToCopy - {@linkplain Collection}&ltT&gt
-     * @param supplier       - {@linkplain Supplier}&ltU&gt
+     * @param <T>            The type of objects in the collection
+     * @param <U>            The type of collection to be created by the supplier
+     * @param entitiesToCopy The collection to verify
+     * @param supplier       The supplier to verify
+     * @throws ApiException If either the collection or supplier is null
      */
     private static <T, U> void verifyCollectionAndSupplier(Collection<T> entitiesToCopy, Supplier<U> supplier) {
         verifyCollection(entitiesToCopy);
@@ -155,11 +166,11 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método para verificar se a {@linkplain Collection collection} a ser
-     * copiada está vazia.</strong>
+     * Verifies that a collection is not empty.
      *
-     * @param <T>            define o tipo da collection verificada
-     * @param entitiesToCopy - {@linkplain Collection}&ltT&gt
+     * @param <T>            The type of objects in the collection
+     * @param entitiesToCopy The collection to verify
+     * @throws ApiException If the collection is empty
      */
     private static <T> void verifyCollection(Collection<T> entitiesToCopy) {
         if (CollectionUtils.isEmpty(entitiesToCopy)) {
@@ -168,38 +179,39 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Function executada para criar a cópia dos objetos da lista
-     * passada.</strong>
+     * Creates a function that produces a deep copy of an object.
      *
-     * @param <T> define o tipo da function testada e do resultado.
-     * @return {@linkplain Function}&ltT, T&gt
+     * @param <T> The type of objects to copy
+     * @return A function that creates deep copies
      */
     private static <T> Function<T, T> createCopy() {
         return ObjectFactoryUtil::createFromObject;
     }
 
     /**
-     * <strong>Function executada para criar a cópia dos objetos da lista
-     * passada, considerando o tipo de retorno especificado.</strong>
+     * Creates a function that produces a deep copy of an object, converting it to a different type.
      *
-     * @param <T> - define o tipo do objecto copiado
-     * @param <S> - define o tipo do objeto retornado
-     * @return {@linkplain Function}&ltT, S&gt
+     * @param <T>        The target type
+     * @param <S>        The source type
+     * @param returnType The class of the target type
+     * @return A function that creates deep copies with type conversion
      */
     private static <T, S> Function<S, T> createCopy(Class<T> returnType) {
         return i -> createFromObject(i, returnType);
     }
 
     /**
-     * <strong>Método que retorna um objeto copiado à partir de outro de tipo
-     * DIFERENTE. Utiliza a lógica do {@linkplain #createFromObject(Object, Object)
-     * createFromObject} para copiar </strong>
+     * Creates a deep copy of an object, converting it to a different type.
+     * <p>
+     * This method creates a new instance of the target type and copies
+     * all matching fields from the source object to the new instance.
      *
-     * @param <T>        - define o tipo do objeto retornado
-     * @param <S>        - define o tipo do objetro copiado
-     * @param source     S
-     * @param returnType {@linkplain Class}&ltT&gt
-     * @return T
+     * @param <T>        The target type
+     * @param <S>        The source type
+     * @param source     The source object to copy
+     * @param returnType The class of the target type
+     * @return A new instance of the target type with copied fields
+     * @throws ApiException If the source object is null or if an error occurs during copying
      */
     public static <T, S> T createFromObject(S source, Class<T> returnType) {
         verifySourceObject(source);
@@ -209,13 +221,15 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método para retornar um novo objeto criado do mesmo tipo do objeto
-     * utilizado para a cópia. Mesma lógica de cópia do
-     * {@linkplain #createFromObject(Object, Object) createFromObject}.</strong>
+     * Creates a deep copy of an object of the same type.
+     * <p>
+     * This method creates a new instance of the same class as the source object
+     * and copies all fields from the source to the new instance.
      *
-     * @param <T>    - define o tipo dos objetos copiado e retornado
-     * @param source - T
-     * @return {@linkplain Object}
+     * @param <T>    The type of the object
+     * @param source The object to copy
+     * @return A deep copy of the source object
+     * @throws ApiException If the source object is null or if an error occurs during copying
      */
     @SuppressWarnings("unchecked")
     public static <T> T createFromObject(T source) {
@@ -226,39 +240,61 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método para criar um novo objeto (dest) a partir de um outro objeto
-     * do mesmo tipo (source).</strong>
-     *
+     * Copies all fields from a source object to a destination object.
      * <p>
-     * Primeiramente, obtém a lista dos campos do objeto de origem, dos quais os
-     * valores serão copiados, utilizando o método
-     * {@linkplain #getFieldsToCopy(Object, Object) getFieldsToCopy}, excluindo os
-     * campos definidos no parâmetro {@linkplain ObjectConstructor#exclude()
-     * exclude} Annotation {@linkplain ObjectConstructor}. Em seguida, utiliza o
-     * método {@linkplain ReflectionUtil#getFieldsAsCollection(Object)
-     * getFieldsAsCollection} para obter os campos do objeto destino e setar em cada
-     * um dos correspondentes os valores dos campos obtidos anteriormente,
-     * utilizando os métodos
-     * {@linkplain FieldUtil#setProtectedFieldValue(Field, Object, Object)
-     * setProtectedFieldValue} e
-     * {@linkplain FieldUtil#getProtectedFieldValue(Field, Object)
-     * getProtectedFieldValue}.
-     * <p>
+     * This method is the core implementation of the object copying functionality.
+     * It handles different types of fields, including primitive types, collections,
+     * and nested objects.
      *
-     * @param <T>    - define o tipo do objeto retornado
-     * @param <S>    - define o tipo do objeto copiado
-     * @param source - S
-     * @param dest   - T
+     * @param <S>    The source type
+     * @param <T>    The destination type
+     * @param source The source object
+     * @param dest   The destination object
+     * @throws ApiException If an error occurs during copying
      */
     public static <T, S> void createFromObject(S source, T dest) {
         verifySourceAndDestObjects(source, dest);
-        List<Field> sourceFields = getFieldsToCopy(source, dest);
-        sourceFields.parallelStream().forEach(sourceField -> ReflectionUtil.getFieldsAsCollection(dest).stream()
-                .filter(destField -> destField.getName().equalsIgnoreCase(sourceField.getName()))
-                .findAny().ifPresent(destField -> {
-                    Object sourceValue = verifyValue(sourceField, destField, source);
-                    FieldUtil.setProtectedFieldValue(destField, dest, sourceValue);
-                }));
+        var sourceDestFieldsMap = createSourceDestFieldMaps(source, dest);
+        sourceDestFieldsMap.entrySet().parallelStream().forEach(fieldsEntry -> {
+            Object sourceValue = verifyValue(fieldsEntry.getKey(), fieldsEntry.getValue(), source);
+            FieldUtil.setProtectedFieldValue(fieldsEntry.getValue(), dest, sourceValue);
+        });
+    }
+
+    private static <S, T> Map<Field, Field> createSourceDestFieldMaps(S source, T dest) {
+        var sourceFields = getFieldsToCopy(source, dest);
+        var destFields = ReflectionUtil.getFieldsAsCollection(dest, ArrayList::new);
+
+        if (sourceFields.isEmpty() || destFields.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Field> sourceFieldMap = buildFieldKeyMap(sourceFields);
+        Map<String, Field> destFieldMap = buildFieldKeyMap(destFields);
+
+        return sourceFieldMap.entrySet().stream()
+                .filter(entry -> destFieldMap.containsKey(entry.getKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getValue,
+                        entry -> destFieldMap.get(entry.getKey())
+                ));
+    }
+
+
+    private static Map<String, Field> buildFieldKeyMap(List<Field> fields) {
+        return fields.stream().collect(Collectors.toMap(
+                ObjectFactoryUtil::resolveFieldKey,
+                Function.identity(),
+                (a, b) -> a
+        ));
+    }
+
+    private static String resolveFieldKey(Field field) {
+        FieldCopyName ann = field.getAnnotation(FieldCopyName.class);
+        if (ann != null && StringUtils.hasText(ann.value())) {
+            return ann.value().toLowerCase();
+        }
+        return field.getName().toLowerCase();
     }
 
     /**
@@ -267,8 +303,8 @@ public final class ObjectFactoryUtil {
      *
      * @param <T>    - define o tipo do objeto retornado
      * @param <S>    - define o tipo do objeto copiado
-     * @param source S
-     * @param dest   T
+     * @param source &lt;S&gt;
+     * @param dest   &lt;T&gt;
      */
     private static <T, S> void verifySourceAndDestObjects(S source, T dest) {
         verifySourceObject(source);
@@ -281,7 +317,7 @@ public final class ObjectFactoryUtil {
      * <strong> Método para verificar se o objeto a ser copiado é válido.</strong>
      *
      * @param <S>    - define o tipo do objeto copiado
-     * @param source S
+     * @param source &lt;S&gt;
      */
     private static <S> void verifySourceObject(S source) {
         if (source == null) {
@@ -308,9 +344,9 @@ public final class ObjectFactoryUtil {
      *
      * @param <T>    - define o tipo do objeto retornado
      * @param <S>    - define o tipo do objeto copiado
-     * @param source - S
-     * @param dest   - T
-     * @return {@linkplain List}&lt{@linkplain Field}&gt
+     * @param source - &lt;S&gt;
+     * @param dest   - &lt;T&gt;
+     * @return {@linkplain List}&lt;{@linkplain Field}&gt;
      */
     private static <T, S> List<Field> getFieldsToCopy(S source, T dest) {
         List<Field> sourceFields = new ArrayList<>(ReflectionUtil.getFieldsAsCollection(source));
@@ -330,8 +366,8 @@ public final class ObjectFactoryUtil {
      * <strong>Método que adiciona os campos especificados na annotation especificada no tipo da classe de destino dos
      * dados copiados.</strong>
      *
-     * @param fieldsToRemove {@linkplain List}&lt{@linkplain Field}&gt
-     * @param sourceFields   {@linkplain List}&lt{@linkplain Field}&gt
+     * @param fieldsToRemove {@linkplain List}&lt;{@linkplain Field}&gt;
+     * @param sourceFields   {@linkplain List}&lt;{@linkplain Field}&gt;
      * @param exclude        {@linkplain String}[]
      */
     private static void getFieldsAnnotatedToExclude(List<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
@@ -351,7 +387,7 @@ public final class ObjectFactoryUtil {
      * retorna um array vazio.</strong>
      *
      * @param <T>  - method type definer
-     * @param dest - &ltT&gt
+     * @param dest - &lt;T&gt;
      * @return {@linkplain String}[]
      */
     private static <T> String[] getExcludeFromAnnotation(T dest) {
@@ -378,7 +414,7 @@ public final class ObjectFactoryUtil {
      * @param <S>         - define o tipo do objeto copiado
      * @param sourceField - {@linkplain Field}
      * @param destField   - {@linkplain Field}
-     * @param source      - S
+     * @param source      - &lt;S&gt;
      * @return {@linkplain Object}
      */
     private static <S> Object verifyValue(Field sourceField, Field destField, S source) {
@@ -439,7 +475,7 @@ public final class ObjectFactoryUtil {
      * <strong> Método para encontrar a constante enum equivalente à String que está
      * sendo copiada.</strong>
      *
-     * @param type        - {@linkplain Class}&lt?&gt
+     * @param type        - {@linkplain Class}&lt;?&gt;
      * @param sourceValue {@linkplain Object}
      * @return {@linkplain Object}
      */
@@ -495,7 +531,7 @@ public final class ObjectFactoryUtil {
      * <i>Wrappers</i>.</strong>
      *
      * @param sourceValue - {@linkplain Object}
-     * @param clazz       - {@linkplain Class}&lt?&gt
+     * @param clazz       - {@linkplain Class}&lt;?&gt;
      * @return {@linkplain Object}
      */
     private static Object serializingClone(Object sourceValue, Class<?> clazz) {
@@ -510,7 +546,7 @@ public final class ObjectFactoryUtil {
      * casos de <i>Wrappers</i> e objetos.</strong>
      *
      * @param sourceValue - {@linkplain Object}
-     * @param clazz       - {@linkplain Class}&lt?&gt
+     * @param clazz       - {@linkplain Class}&lt;?&gt;
      * @return {@linkplain Object}
      */
     private static Object serializingCloneObjects(Object sourceValue, Class<?> clazz) {
@@ -606,7 +642,7 @@ public final class ObjectFactoryUtil {
     private static void verifyType(Type genericType) throws ClassNotFoundException, BeanInstantiationException {
         ParameterizedType typeTest = (ParameterizedType) genericType;
         for (Type type : typeTest.getActualTypeArguments()) {
-            Class<?> clazz = Class.forName(type.getTypeName());
+            Class<?> clazz = ClassUtils.getClass(type.getTypeName());
             if (!isPrimitiveOrEnum(clazz) && !isWrapperType(clazz)) {
                 BeanUtils.instantiateClass(clazz);
             }
@@ -630,18 +666,18 @@ public final class ObjectFactoryUtil {
      * atributo.</strong>
      *
      * @param genericType - {@linkplain Type}
-     * @return {@linkplain Class}&lt?&gt
+     * @return {@linkplain Class}&lt;?&gt;
      * @throws ClassNotFoundException - exception lançada para testar se o tipo existe
      */
     private static Class<?> getRawType(Type genericType) throws ClassNotFoundException {
-        return Class.forName(((ParameterizedType) genericType).getRawType().getTypeName());
+        return ClassUtils.getClass(((ParameterizedType) genericType).getRawType().getTypeName());
     }
 
     /**
      * <strong>Método para verificar se é um tipo primitivo ou
      * {@linkplain Enum}.</strong>
      *
-     * @param type - {@linkplain Class}&lt?&gt
+     * @param type - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isPrimitiveOrEnum(Class<?> type) {
@@ -652,7 +688,7 @@ public final class ObjectFactoryUtil {
      * <strong>Método para verificar se é uma {@linkplain Collection} ou um
      * {@linkplain Map}.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isClassMapCollection(Class<?> clazz) {
@@ -662,7 +698,7 @@ public final class ObjectFactoryUtil {
     /**
      * <strong>Método para verificar se é uma {@linkplain Collection}.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isCollection(Class<?> clazz) {
@@ -672,7 +708,7 @@ public final class ObjectFactoryUtil {
     /**
      * <strong>Método para verificar se é um {@linkplain Map}.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return boolean
      */
     private static boolean isMap(Class<?> clazz) {
@@ -683,7 +719,7 @@ public final class ObjectFactoryUtil {
      * <strong>Método responsável por verificar se o tipo do valor sendo copiado é
      * um wrapper.</strong>
      *
-     * @param clazz - {@linkplain Class}&lt?&gt
+     * @param clazz - {@linkplain Class}&lt;?&gt;
      * @return {@linkplain Boolean}
      */
     private static boolean isWrapperType(Class<?> clazz) {
@@ -692,10 +728,11 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método responsável por criar o {@linkplain Set} com os <i>wrapper
-     * types</i></strong>
+     * Creates a set of all wrapper types.
+     * <p>
+     * This includes numbers, dates, text types, and other common wrapper types.
      *
-     * @return {@linkplain Set}&lt{@linkplain Class}&lt?&gt&gt
+     * @return A set of all wrapper types
      */
     private static Set<Class<?>> getWrapperTypes() {
         Set<Class<?>> wrappers = new HashSet<>();
@@ -709,10 +746,9 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método responsável por criar o {@linkplain Set} com os <i>wrapper
-     * types</i> de textos.</strong>
+     * Creates a set of wrapper types for text classes.
      *
-     * @return {@linkplain Set}&lt{@linkplain Class}&lt?&gt&gt
+     * @return A set of text-related classes
      */
     private static Set<Class<?>> textTypes() {
         Set<Class<?>> aux = new HashSet<>();
@@ -723,10 +759,9 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método responsável por criar o {@linkplain Set} com os <i>wrapper
-     * types</i> de datas/horas.</strong>
+     * Creates a set of wrapper types for date/time classes.
      *
-     * @return {@linkplain Set}&lt{@linkplain Class}&lt?&gt&gt
+     * @return A set of date/time-related classes
      */
     private static Set<Class<?>> dateTypes() {
         Set<Class<?>> aux = new HashSet<>();
@@ -741,10 +776,9 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método responsável por criar o {@linkplain Set} com os <i>wrapper
-     * types</i> de números.</strong>
+     * Creates a set of wrapper types for number classes.
      *
-     * @return {@linkplain Set}&lt{@linkplain Class}&lt?&gt&gt
+     * @return A set of number-related classes
      */
     private static Set<Class<?>> numberTypes() {
         Set<Class<?>> aux = new HashSet<>();
@@ -757,17 +791,19 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método responsável por criar o predicate que verifica se o campo
-     * testado possui os modificadores <i>static</i> e <i>final</i>, que,
-     * normalmente, caracteriza uma constante, cujo valor não precisa ser
-     * copiado.</strong>
+     * Creates a predicate that identifies constant fields.
+     * <p>
+     * The predicate returns true for fields that are both static and final.
      *
-     * @return {@linkplain Predicate}&lt{@linkplain Field}&gt
+     * @return A predicate for identifying constant fields
      */
     private static Predicate<Field> predicateModifiers() {
         return p -> Modifier.isStatic(p.getModifiers()) && Modifier.isFinal(p.getModifiers());
     }
 
+    /**
+     * Creates a map of default values for primitive types.
+     */
     private static void createMapDefaultValues() {
         DEFAULT_VALUES.put(boolean.class, Boolean.FALSE);
         DEFAULT_VALUES.put(byte.class, (byte) 0);
