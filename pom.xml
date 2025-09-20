@@ -5,7 +5,7 @@
 
 	<groupId>io.github.gregoryfeijon</groupId>
 	<artifactId>object-factory-util-spring-lib</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<name>object-factory-util-spring-lib</name>
 	<description>Java library that create copy from objects and collections with new memory reference. Version for spring projects.</description>
 	<url>https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</url>
