@@ -25,7 +25,7 @@ import java.util.EnumMap;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class TestSerializerUtil {
+final class TestSerializerUtil {
 
     private static final ObjectMapper objectMapper;
     private static final Gson gson;
@@ -35,7 +35,7 @@ public final class TestSerializerUtil {
         gson = buildGsonGmt();
     }
 
-    public static void configureGsonAndJacksonAdapter() {
+    static void configureGsonAndJacksonAdapter() {
         EnumMap<SerializationType, SerializerAdapter> adapters = new EnumMap<>(SerializationType.class);
         adapters.put(SerializationType.GSON, new GsonAdapter(gson));
         adapters.put(SerializationType.JACKSON, new JacksonAdapter(objectMapper));
