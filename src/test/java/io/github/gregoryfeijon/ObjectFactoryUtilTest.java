@@ -76,8 +76,7 @@ class ObjectFactoryUtilTest {
         List<PrimitiveFoo> fooList = List.of(new PrimitiveFoo(), new PrimitiveFoo());
         List<PrimitiveFoo> copiedList = ObjectFactoryUtil.copyAllObjectsFromCollection(fooList);
 
-        assertThat(copiedList).isNotNull();
-        assertThat(copiedList).hasSize(fooList.size());
+        assertThat(copiedList).isNotNull().hasSize(fooList.size());
         assertThat(copiedList.getFirst()).isNotSameAs(fooList.getFirst());
     }
 
@@ -86,8 +85,7 @@ class ObjectFactoryUtilTest {
         List<PrimitiveFoo> fooList = List.of(new PrimitiveFoo(), new PrimitiveFoo());
         List<PrimitiveBar> copiedList = ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, PrimitiveBar.class);
 
-        assertThat(copiedList).isNotNull();
-        assertThat(copiedList).hasSize(fooList.size());
+        assertThat(copiedList).isNotNull().hasSize(fooList.size());
         assertThat(copiedList.getFirst()).isInstanceOf(PrimitiveBar.class);
     }
 
@@ -96,9 +94,10 @@ class ObjectFactoryUtilTest {
         List<PrimitiveFoo> fooList = List.of(new PrimitiveFoo(), new PrimitiveFoo());
         Set<PrimitiveFoo> copiedSet = ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, HashSet::new);
 
-        assertThat(copiedSet).isNotNull();
-        assertThat(copiedSet).hasSize(fooList.size());
-        assertThat(copiedSet).allSatisfy(obj -> assertThat(obj).isInstanceOf(PrimitiveFoo.class));
+        assertThat(copiedSet)
+                .isNotNull()
+                .hasSize(fooList.size())
+                .allSatisfy(obj -> assertThat(obj).isInstanceOf(PrimitiveFoo.class));
     }
 
     @Test
@@ -106,9 +105,10 @@ class ObjectFactoryUtilTest {
         List<PrimitiveFoo> fooList = List.of(new PrimitiveFoo(), new PrimitiveFoo());
         Set<PrimitiveBar> copiedSet = ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, HashSet::new, PrimitiveBar.class);
 
-        assertThat(copiedSet).isNotNull();
-        assertThat(copiedSet).hasSize(fooList.size());
-        assertThat(copiedSet).allSatisfy(obj -> assertThat(obj).isInstanceOf(PrimitiveBar.class));
+        assertThat(copiedSet)
+                .isNotNull()
+                .hasSize(fooList.size())
+                .allSatisfy(obj -> assertThat(obj).isInstanceOf(PrimitiveBar.class));
     }
 
     @Test
