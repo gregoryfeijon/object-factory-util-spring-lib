@@ -1,11 +1,13 @@
 package io.github.gregoryfeijon.utils.serialization.adapter;
 
-import io.github.gregoryfeijon.domain.enums.SerializationType;
-import io.github.gregoryfeijon.utils.factory.FactoryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import io.github.gregoryfeijon.domain.enums.SerializationType;
+import io.github.gregoryfeijon.domain.properties.SerializerProviderProperties;
+import io.github.gregoryfeijon.utils.factory.FactoryUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.Map;
  *
  * @author gregory.feijon
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SerializerProvider {
 
@@ -31,7 +34,7 @@ public final class SerializerProvider {
      * This method should be called once during application startup. If the provider
      * has already been initialized, this method has no effect.
      *
-     * @param adapters The map of serialization types to their corresponding adapters
+     * @param adapters    The map of serialization types to their corresponding adapters
      * @param defaultType The default serialization type to use
      */
     public static void initialize(Map<SerializationType, SerializerAdapter> adapters, SerializationType defaultType) {
@@ -50,6 +53,9 @@ public final class SerializerProvider {
      * @throws IllegalStateException If initialization fails due to missing required beans
      */
     public static synchronized void initializeIfEmpty() {
+        if (!isEnabled()) {
+            return;
+        }
         if (ADAPTERS.isEmpty()) {
             try {
                 EnumMap<SerializationType, SerializerAdapter> adapters = new EnumMap<>(SerializationType.class);
@@ -66,6 +72,18 @@ public final class SerializerProvider {
                 );
             }
         }
+    }
+
+    private static boolean isEnabled() {
+        SerializerProviderProperties props = FactoryUtil.getBean(SerializerProviderProperties.class);
+        if (props.isEnabled()) {
+            return true;
+        }
+        log.warn(
+                "SerializerProvider is disabled! " +
+                        "No adapters will be initialized and ObjectFactoryUtil will not be available."
+        );
+        return false;
     }
 
     /**
