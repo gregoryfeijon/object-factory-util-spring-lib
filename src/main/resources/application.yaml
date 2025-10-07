@@ -1,9 +1,3 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-
-serializer:
-  provider:
-    default:
-      enabled: true
-      type: "gson"
