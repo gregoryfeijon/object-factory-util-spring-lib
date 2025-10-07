@@ -1,8 +1,8 @@
 package io.github.gregoryfeijon.config.gson.strategy;
 
-import io.github.gregoryfeijon.domain.annotation.Exclude;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
+import io.github.gregoryfeijon.domain.annotation.Exclude;
 import org.springframework.stereotype.Component;
 
 /**

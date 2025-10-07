@@ -1,11 +1,11 @@
 package io.github.gregoryfeijon.config.gson.adapter;
 
-import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ReflectionUtils;

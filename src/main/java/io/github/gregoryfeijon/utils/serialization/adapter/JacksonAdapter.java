@@ -1,9 +1,9 @@
 package io.github.gregoryfeijon.utils.serialization.adapter;
 
-import io.github.gregoryfeijon.exception.ApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.gregoryfeijon.exception.ApiException;
 import org.springframework.core.serializer.support.SerializationFailedException;
 
 import java.lang.reflect.Type;
