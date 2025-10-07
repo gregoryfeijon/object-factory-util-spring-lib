@@ -1,7 +1,5 @@
 package io.github.gregoryfeijon.config.jackson.serialization.serializer;
 
-import io.github.gregoryfeijon.config.jackson.serialization.JacksonSerializationHelper;
-import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
@@ -9,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import io.github.gregoryfeijon.config.jackson.serialization.JacksonSerializationHelper;
+import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

@@ -1,10 +1,10 @@
 package io.github.gregoryfeijon.config.gson.factory;
 
-import io.github.gregoryfeijon.config.gson.adapter.EnumUseAttributeInMarshallingTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
+import io.github.gregoryfeijon.config.gson.adapter.EnumUseAttributeInMarshallingTypeAdapter;
 import org.springframework.stereotype.Component;
 
 /**

@@ -1,6 +1,5 @@
 package io.github.gregoryfeijon.config.gson.adapter;
 
-import io.github.gregoryfeijon.exception.ApiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +12,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import io.github.gregoryfeijon.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

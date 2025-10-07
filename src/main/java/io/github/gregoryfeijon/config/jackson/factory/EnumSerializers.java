@@ -1,11 +1,11 @@
 package io.github.gregoryfeijon.config.jackson.factory;
 
-import io.github.gregoryfeijon.config.jackson.serialization.serializer.EnumUseAttributeSerializer;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import io.github.gregoryfeijon.config.jackson.serialization.serializer.EnumUseAttributeSerializer;
 import org.springframework.stereotype.Component;
 
 /**
