@@ -5,7 +5,7 @@
 
 	<groupId>io.github.gregoryfeijon</groupId>
 	<artifactId>object-factory-util-spring-lib</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<name>object-factory-util-spring-lib</name>
 	<description>Java library that create copy from objects and collections with new memory reference. Version for spring projects.</description>
 	<url>https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</url>
@@ -121,7 +121,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.18.0</version>
+			<version>3.19.0</version>
 		</dependency>
 
 		<dependency>
@@ -174,7 +174,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.14.0</version>
+				<version>3.14.1</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -190,7 +190,7 @@
 			<plugin>
 				<groupId>org.sonatype.central</groupId>
 				<artifactId>central-publishing-maven-plugin</artifactId>
-				<version>0.8.0</version>
+				<version>0.9.0</version>
 				<extensions>true</extensions>
 				<configuration>
 					<publishingServerId>central</publishingServerId>
@@ -212,7 +212,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.11.3</version>
+				<version>3.12.0</version>
 				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>
