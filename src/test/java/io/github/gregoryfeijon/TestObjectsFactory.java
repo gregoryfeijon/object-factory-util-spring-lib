@@ -1,10 +1,14 @@
 package io.github.gregoryfeijon;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-class TestObjectsFactory {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+final class TestObjectsFactory {
 
     static PrimitiveFoo createPrimitiveFoo() {
         return PrimitiveFoo.builder()
