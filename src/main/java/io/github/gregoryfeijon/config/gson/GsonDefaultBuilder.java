@@ -7,6 +7,7 @@ import io.github.gregoryfeijon.config.gson.adapter.JsonNodeTypeAdapter;
 import io.github.gregoryfeijon.config.gson.adapter.OptionalTypeAdapter;
 import io.github.gregoryfeijon.config.gson.factory.EnumUseAttributeInMarshallingTypeAdapterFactory;
 import io.github.gregoryfeijon.config.gson.factory.GsonRemoveUnusedDecimalTypeAdapterFactory;
+import io.github.gregoryfeijon.config.gson.factory.HibernateProxyTypeAdapterFactory;
 import io.github.gregoryfeijon.config.gson.strategy.GsonSerializationStrategy;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -43,6 +44,7 @@ public final class GsonDefaultBuilder {
                 .registerTypeAdapter(Optional.class, new OptionalTypeAdapter())
                 .registerTypeAdapterFactory(new EnumUseAttributeInMarshallingTypeAdapterFactory())
                 .registerTypeAdapterFactory(new GsonRemoveUnusedDecimalTypeAdapterFactory())
+                .registerTypeAdapterFactory(new HibernateProxyTypeAdapterFactory())
                 .addSerializationExclusionStrategy(new GsonSerializationStrategy());
     }
 }

@@ -14,6 +14,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
@@ -419,6 +421,7 @@ public final class ObjectFactoryUtil {
      */
     private static <S> Object verifyValue(Field sourceField, Field destField, S source) {
         Object sourceValue = FieldUtil.getProtectedFieldValue(sourceField, source);
+        sourceValue = unproxyValueIfNeeded(sourceValue);
         Class<?> sourceFieldType = sourceField.getType();
         Class<?> destFieldType = destField.getType();
 
@@ -443,6 +446,29 @@ public final class ObjectFactoryUtil {
         }
 
         return copyValue(sourceField, destField, sourceValue);
+    }
+
+    private static Object unproxyValueIfNeeded(Object value) {
+        if (value instanceof HibernateProxy proxy) {
+            LazyInitializer li = proxy.getHibernateLazyInitializer();
+            if (li.isUninitialized()) {
+                return BeanUtils.instantiateClass(li.getPersistentClass());
+            }
+            return li.getImplementation();
+        }
+        if (value instanceof Collection<?> collection) {
+            return collection.stream()
+                    .map(ObjectFactoryUtil::unproxyValueIfNeeded)
+                    .collect(Collectors.toList());
+        }
+        if (value instanceof Map<?, ?> map) {
+            return map.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            e -> unproxyValueIfNeeded(e.getKey()),
+                            e -> unproxyValueIfNeeded(e.getValue())
+                    ));
+        }
+        return value;
     }
 
     /**
