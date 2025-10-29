@@ -3,6 +3,7 @@ package io.github.gregoryfeijon.utils;
 import io.github.gregoryfeijon.exception.ApiException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
@@ -548,26 +549,106 @@ public final class ReflectionUtil {
     /**
      * Sets a value by invoking a setter method by name.
      *
-     * @param <T>         The type of the object containing the setter
-     * @param <S>         The type of the value to set
-     * @param setterName  The name of the setter method
-     * @param setterClass The object containing the setter
-     * @param valueToSet  The value to set
+     * @param <T>        The type of the object containing the setter
+     * @param <S>        The type of the value to set
+     * @param setterName The name of the setter method
+     * @param target     The object containing the setter
+     * @param valueToSet The value to set
      * @throws ApiException If the setter cannot be found or invoked
      */
-    public static <T, S> void setValueDynamicallyThroughSetterName(String setterName, T setterClass, S valueToSet) {
-        var setter = findSetterMethod(setterName, setterClass);
+    public static <T, S> void setValueDynamicallyThroughSetterName(String setterName, T target, S valueToSet) {
+        Method setter = findSetterMethod(setterName, target);
+
         if (!Modifier.isPublic(setter.getModifiers())) {
             throw new ApiException("Setter method is not public: " + setterName);
         }
+
+        Class<?> paramType = setter.getParameterTypes()[0];
+        Class<?> valueType = valueToSet != null ? valueToSet.getClass() : null;
+
         try {
-            if (!setter.getParameterTypes()[0].isInstance(valueToSet)) {
-                throw new ApiException("Incompatible parameter type for setter: " + setterName);
-            }
-            setter.invoke(setterClass, valueToSet);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+            verifyTypes(setterName, target, valueToSet, paramType, setter, valueType);
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new ApiException("Error invoking setter: " + setterName, e);
         }
+    }
+
+    /**
+     * Verifies type compatibility and invokes the setter accordingly.
+     */
+    private static <T, S> void verifyTypes(
+            String setterName, T target, S valueToSet,
+            Class<?> paramType, Method setter, Class<?> valueType
+    ) throws IllegalAccessException, InvocationTargetException {
+
+        if (verifyNullValueToSet(target, valueToSet, paramType, setter)) {
+            return;
+        }
+
+        if (verifyPrimitiveWrapperCompatibility(target, valueToSet, paramType, valueType, setter, true)) {
+            return;
+        }
+
+        if (verifyPrimitiveWrapperCompatibility(target, valueToSet, paramType, valueType, setter, false)) {
+            return;
+        }
+
+        if (valueType != null && paramType.isAssignableFrom(valueType)) {
+            setter.invoke(target, valueToSet);
+            return;
+        }
+
+        throw new ApiException(String.format(
+                "Incompatible parameter type for setter '%s': expected %s but got %s",
+                setterName,
+                paramType.getName(),
+                valueType != null ? valueType.getName() : "null"
+        ));
+    }
+
+    /**
+     * Handles conversion between primitive <-> wrapper types.
+     *
+     * @param target         the target instance
+     * @param valueToSet     the value to set
+     * @param paramType      setter parameter type
+     * @param valueType      type of the provided value
+     * @param setter         method reference
+     * @param paramToWrapper if true, converts paramType → wrapperType; if false, converts valueType → wrapperType
+     */
+    private static <T, S> boolean verifyPrimitiveWrapperCompatibility(
+            T target, S valueToSet,
+            Class<?> paramType, Class<?> valueType,
+            Method setter, boolean paramToWrapper
+    ) throws IllegalAccessException, InvocationTargetException {
+
+        if (valueType == null) return false;
+
+        Class<?> convertedType = paramToWrapper
+                ? ClassUtils.primitiveToWrapper(paramType)
+                : ClassUtils.primitiveToWrapper(valueType);
+
+        Class<?> comparableType = paramToWrapper ? valueType : paramType;
+
+        if (convertedType.isAssignableFrom(comparableType)) {
+            setter.invoke(target, valueToSet);
+            return true;
+        }
+        return false;
+    }
+
+    private static <T, S> boolean verifyNullValueToSet(T target, S valueToSet, Class<?> paramType, Method setter) throws IllegalAccessException, InvocationTargetException {
+        if (valueToSet == null) {
+            if (paramType.isPrimitive()) {
+                Object defaultValue = TypeHelper.defaultValueFor(paramType);
+                setter.invoke(target, defaultValue);
+                return true;
+            } else {
+                setter.invoke(target, (Object) null);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
