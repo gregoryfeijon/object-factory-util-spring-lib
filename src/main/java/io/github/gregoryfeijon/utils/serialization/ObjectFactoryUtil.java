@@ -26,31 +26,25 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.sql.Time;
-import java.text.Format;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.gregoryfeijon.utils.TypeHelper.defaultValueFor;
+import static io.github.gregoryfeijon.utils.TypeHelper.getRawType;
+import static io.github.gregoryfeijon.utils.TypeHelper.isClassMapCollection;
+import static io.github.gregoryfeijon.utils.TypeHelper.isCollection;
+import static io.github.gregoryfeijon.utils.TypeHelper.isPrimitiveOrEnum;
+import static io.github.gregoryfeijon.utils.TypeHelper.isWrapperType;
 import static java.util.Arrays.stream;
 
 /**
@@ -68,15 +62,11 @@ import static java.util.Arrays.stream;
 public final class ObjectFactoryUtil {
 
     private static final SerializerAdapter SERIALIZER;
-    private static final Set<Class<?>> WRAPPER_TYPES;
     private static final Predicate<Field> PREDICATE_MODIFIERS;
-    private static final Map<Class<?>, Object> DEFAULT_VALUES = new HashMap<>();
 
     static {
         SERIALIZER = SerializerProvider.getAdapter();
-        WRAPPER_TYPES = getWrapperTypes();
         PREDICATE_MODIFIERS = predicateModifiers();
-        createMapDefaultValues();
     }
 
     /**
@@ -688,135 +678,6 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método para obter o tipo de {@linkplain Collection} utilizado no
-     * atributo.</strong>
-     *
-     * @param genericType - {@linkplain Type}
-     * @return {@linkplain Class}&lt;?&gt;
-     * @throws ClassNotFoundException - exception lançada para testar se o tipo existe
-     */
-    private static Class<?> getRawType(Type genericType) throws ClassNotFoundException {
-        return ClassUtils.getClass(((ParameterizedType) genericType).getRawType().getTypeName());
-    }
-
-    /**
-     * <strong>Método para verificar se é um tipo primitivo ou
-     * {@linkplain Enum}.</strong>
-     *
-     * @param type - {@linkplain Class}&lt;?&gt;
-     * @return boolean
-     */
-    private static boolean isPrimitiveOrEnum(Class<?> type) {
-        return type.isPrimitive() || type.isEnum();
-    }
-
-    /**
-     * <strong>Método para verificar se é uma {@linkplain Collection} ou um
-     * {@linkplain Map}.</strong>
-     *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return boolean
-     */
-    private static boolean isClassMapCollection(Class<?> clazz) {
-        return isCollection(clazz) || isMap(clazz);
-    }
-
-    /**
-     * <strong>Método para verificar se é uma {@linkplain Collection}.</strong>
-     *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return boolean
-     */
-    private static boolean isCollection(Class<?> clazz) {
-        return Collection.class.isAssignableFrom(clazz);
-    }
-
-    /**
-     * <strong>Método para verificar se é um {@linkplain Map}.</strong>
-     *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return boolean
-     */
-    private static boolean isMap(Class<?> clazz) {
-        return Map.class.isAssignableFrom(clazz);
-    }
-
-    /**
-     * <strong>Método responsável por verificar se o tipo do valor sendo copiado é
-     * um wrapper.</strong>
-     *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return {@linkplain Boolean}
-     */
-    private static boolean isWrapperType(Class<?> clazz) {
-        return WRAPPER_TYPES.contains(clazz)
-                || WRAPPER_TYPES.stream().anyMatch(wrapper -> wrapper.isAssignableFrom(clazz));
-    }
-
-    /**
-     * Creates a set of all wrapper types.
-     * <p>
-     * This includes numbers, dates, text types, and other common wrapper types.
-     *
-     * @return A set of all wrapper types
-     */
-    private static Set<Class<?>> getWrapperTypes() {
-        Set<Class<?>> wrappers = new HashSet<>();
-        wrappers.add(Boolean.class);
-        wrappers.add(Byte.class);
-        wrappers.add(UUID.class);
-        wrappers.addAll(numberTypes());
-        wrappers.addAll(dateTypes());
-        wrappers.addAll(textTypes());
-        return wrappers;
-    }
-
-    /**
-     * Creates a set of wrapper types for text classes.
-     *
-     * @return A set of text-related classes
-     */
-    private static Set<Class<?>> textTypes() {
-        Set<Class<?>> aux = new HashSet<>();
-        aux.add(String.class);
-        aux.add(Character.class);
-        aux.add(Format.class);
-        return aux;
-    }
-
-    /**
-     * Creates a set of wrapper types for date/time classes.
-     *
-     * @return A set of date/time-related classes
-     */
-    private static Set<Class<?>> dateTypes() {
-        Set<Class<?>> aux = new HashSet<>();
-        aux.add(Date.class);
-        aux.add(Time.class);
-        aux.add(LocalDateTime.class);
-        aux.add(LocalDate.class);
-        aux.add(LocalTime.class);
-        aux.add(Temporal.class);
-        aux.add(Instant.class);
-        return aux;
-    }
-
-    /**
-     * Creates a set of wrapper types for number classes.
-     *
-     * @return A set of number-related classes
-     */
-    private static Set<Class<?>> numberTypes() {
-        Set<Class<?>> aux = new HashSet<>();
-        aux.add(Integer.class);
-        aux.add(Double.class);
-        aux.add(Float.class);
-        aux.add(Long.class);
-        aux.add(Number.class);
-        return aux;
-    }
-
-    /**
      * Creates a predicate that identifies constant fields.
      * <p>
      * The predicate returns true for fields that are both static and final.
@@ -825,24 +686,5 @@ public final class ObjectFactoryUtil {
      */
     private static Predicate<Field> predicateModifiers() {
         return p -> Modifier.isStatic(p.getModifiers()) && Modifier.isFinal(p.getModifiers());
-    }
-
-    /**
-     * Creates a map of default values for primitive types.
-     */
-    private static void createMapDefaultValues() {
-        DEFAULT_VALUES.put(boolean.class, Boolean.FALSE);
-        DEFAULT_VALUES.put(byte.class, (byte) 0);
-        DEFAULT_VALUES.put(short.class, (short) 0);
-        DEFAULT_VALUES.put(int.class, 0);
-        DEFAULT_VALUES.put(long.class, 0L);
-        DEFAULT_VALUES.put(char.class, '\0');
-        DEFAULT_VALUES.put(float.class, 0.0F);
-        DEFAULT_VALUES.put(double.class, 0.0D);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T defaultValueFor(Class<T> clazz) {
-        return (T) DEFAULT_VALUES.get(clazz);
     }
 }
