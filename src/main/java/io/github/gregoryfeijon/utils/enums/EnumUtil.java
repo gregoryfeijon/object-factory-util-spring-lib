@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon.utils;
+package io.github.gregoryfeijon.utils.enums;
 
 import io.github.gregoryfeijon.exception.ApiException;
 import lombok.AccessLevel;
