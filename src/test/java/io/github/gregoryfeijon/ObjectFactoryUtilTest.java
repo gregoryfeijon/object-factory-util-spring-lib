@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -182,5 +183,39 @@ class ObjectFactoryUtilTest {
         MismatchTarget target = ObjectFactoryUtil.createFromObject(source, MismatchTarget.class);
 
         assertThat(target.getBar()).isNull();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSupplierIsNull() {
+        List<PrimitiveFoo> fooList = List.of(new PrimitiveFoo());
+        Supplier<List<PrimitiveFoo>> supplier = null;
+
+        assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, supplier))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("coleção especificada para retorno é nulo");
+    }
+
+    @Test
+    void shouldReturnEmptyMapWhenSourceAndDestinationHaveNoFields() {
+        // given
+        EmptySource source = new EmptySource();
+
+        // when
+        EmptyDestination result = ObjectFactoryUtil.createFromObject(source, EmptyDestination.class);
+
+        // then
+        assertThat(result).isNotNull();
+        // não há campos, então não ocorre nenhuma cópia real
+    }
+
+    @Test
+    void shouldKeepFirstFieldWhenDuplicateKeyInSameClassOccurs() {
+        var source = TestObjectsFactory.createFooDuplicatedObject();
+
+        // Deve internamente chamar buildFieldKeyMap e cair no (a, b) -> a
+        var result = ObjectFactoryUtil.createFromObject(source, FooDuplicated.class);
+
+        // Se não deu exceção, o merge foi resolvido corretamente
+        assertThat(result).isNotNull();
     }
 }

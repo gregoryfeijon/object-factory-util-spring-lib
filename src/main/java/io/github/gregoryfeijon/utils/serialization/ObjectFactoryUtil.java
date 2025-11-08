@@ -13,6 +13,7 @@ import io.github.gregoryfeijon.utils.serialization.adapter.SerializerAdapter;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.hibernate.proxy.HibernateProxy;
@@ -59,6 +60,7 @@ import static java.util.Arrays.stream;
  */
 @SuppressWarnings("java:S6204")
 //warning do .toList() suprimida, uma vez que não se aplica nessa classe, que é uma classe útil
+@Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ObjectFactoryUtil {
 
@@ -278,7 +280,10 @@ public final class ObjectFactoryUtil {
         return fields.stream().collect(Collectors.toMap(
                 ObjectFactoryUtil::resolveFieldKey,
                 Function.identity(),
-                (a, b) -> a
+                (a, b) -> {
+                    log.warn("Duplicate field key '{}' detected. Keeping first occurrence.", a.getName());
+                    return a;
+                }
         ));
     }
 

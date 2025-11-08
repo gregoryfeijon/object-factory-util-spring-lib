@@ -77,4 +77,11 @@ final class TestObjectsFactory {
                 .thread(new Thread())
                 .build();
     }
+
+    static FooDuplicated createFooDuplicatedObject() {
+        return FooDuplicated.builder()
+                .nome1("nome 1 duplicado")
+                .nome2("nome 2 duplicado")
+                .build();
+    }
 }
