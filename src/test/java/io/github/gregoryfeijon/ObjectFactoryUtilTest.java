@@ -1,15 +1,19 @@
 package io.github.gregoryfeijon;
 
+import io.github.gregoryfeijon.domain.enums.SerializationType;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.serialization.ObjectFactoryUtil;
+import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,12 +48,14 @@ class ObjectFactoryUtilTest {
     }
 
     @Test
-    void shouldCopyWrapperWithCollections() {
+    void shouldCopyWrapperWithCollectionsAndExcludeFieldMarked() {
         FooWrapper fooWrapper = new FooWrapper();
         fooWrapper.setPrimitiveFoo(new PrimitiveFoo());
         fooWrapper.setObjectFoo(new ObjectFoo());
         fooWrapper.setPrimitiveFooList(List.of(new PrimitiveFoo()));
         fooWrapper.setObjectFooMap(Map.of("key", new ObjectFoo()));
+        fooWrapper.setFieldExcluded("This value shouldn't be copied");
+        fooWrapper.setFieldExcludedWithAnnotation("This value shouldn't be copied too");
 
         BarWrapper barWrapper = ObjectFactoryUtil.createFromObject(fooWrapper, BarWrapper.class);
 
@@ -58,6 +64,8 @@ class ObjectFactoryUtilTest {
         assertThat(barWrapper.getObjectBar()).isNotNull();
         assertThat(barWrapper.getPrimitiveBarList()).hasSize(1);
         assertThat(barWrapper.getObjectBarMap()).containsKey("key");
+        assertThat(barWrapper.getFieldExcluded()).isNull();
+        assertThat(barWrapper.getFieldExcludedWithAnnotation()).isNull();
     }
 
     @Test
@@ -119,4 +127,139 @@ class ObjectFactoryUtilTest {
                 .isInstanceOf(ApiException.class)
                 .hasMessageContaining("não possui elementos");
     }
+
+    @Test
+    void shouldThrowExceptionWhenSourceIsNull() {
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(null, PrimitiveBar.class))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("objeto a ser copiado é nulo");
+    }
+
+    @Test
+    void shouldHandleNullFieldsGracefully() {
+        ObjectFoo foo = new ObjectFoo(null, null, null);
+        ObjectBar bar = ObjectFactoryUtil.createFromObject(foo, ObjectBar.class);
+        assertThat(bar).isNotNull();
+        assertThat(bar.getIntegerValue()).isNull();
+        assertThat(bar.getBdValue()).isNull();
+    }
+
+    @Test
+    void shouldClonePrimitiveArrayInsideHolder() {
+        PrimitiveArrayHolder holder = TestObjectsFactory.createPrimitiveArrayHolder();
+        PrimitiveArrayHolder clone = ObjectFactoryUtil.createFromObject(holder, PrimitiveArrayHolder.class);
+
+        assertThat(clone.getIntValues())
+                .containsExactly(holder.getIntValues())
+                .isNotSameAs(holder.getIntValues());
+    }
+
+    @Test
+    void shouldCloneWrapperArrayInsideHolder() {
+        WrapperArrayHolder holder = TestObjectsFactory.createWrapperArrayHolder();
+        WrapperArrayHolder clone = ObjectFactoryUtil.createFromObject(holder, WrapperArrayHolder.class);
+
+        assertThat(clone.getIntegerValues())
+                .containsExactly(holder.getIntegerValues())
+                .isNotSameAs(holder.getIntegerValues());
+    }
+
+    @Test
+    void shouldInitializeProviderIfEmpty() {
+        SerializerProvider.initialize(new EnumMap<>(SerializationType.class), SerializationType.GSON);
+        SerializerProvider.getAdapter(); // força lazy init
+        assertThat(SerializerProvider.getAdapter()).isNotNull();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSerializationFails() {
+        var auxTest = TestObjectsFactory.createNonSerializableObject();
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(auxTest, NonSerializableObject.class))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("Failed making field");
+    }
+
+    @Test
+    void shouldIgnoreFieldsWithoutMatchingNamesOrAnnotations() {
+        MismatchSource source = new MismatchSource();
+        source.setFoo("value");
+
+        MismatchTarget target = ObjectFactoryUtil.createFromObject(source, MismatchTarget.class);
+
+        assertThat(target.getBar()).isNull();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSupplierIsNull() {
+        List<PrimitiveFoo> fooList = List.of(new PrimitiveFoo());
+        Supplier<List<PrimitiveFoo>> supplier = null;
+
+        assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, supplier))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("coleção especificada para retorno é nulo");
+    }
+
+    @Test
+    void shouldReturnEmptyMapWhenSourceAndDestinationHaveNoFields() {
+        // given
+        EmptySource source = new EmptySource();
+
+        // when
+        EmptyDestination result = ObjectFactoryUtil.createFromObject(source, EmptyDestination.class);
+
+        // then
+        assertThat(result).isNotNull();
+        // não há campos, então não ocorre nenhuma cópia real
+    }
+
+    @Test
+    void shouldKeepFirstFieldWhenDuplicateKeyInSameClassOccurs() {
+        var source = TestObjectsFactory.createFooDuplicatedObject();
+
+        // Deve internamente chamar buildFieldKeyMap e cair no (a, b) -> a
+        var result = ObjectFactoryUtil.createFromObject(source, FooDuplicated.class);
+
+        // Se não deu exceção, o merge foi resolvido corretamente
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDestinationIsNull() {
+        PrimitiveFoo source = TestObjectsFactory.createPrimitiveFoo();
+        PrimitiveFoo dest = null;
+
+        // Passando dest como null, deve lançar ApiException
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(source, dest))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("O objeto de destino é nulo");
+    }
+
+    @Test
+    void shouldHandleAllVerifyValueBranches() {
+        // given
+        VerifyValueSource source = TestObjectsFactory.createVerifyValueSource();
+
+        // when
+        VerifyValueDest dest = ObjectFactoryUtil.createFromObject(source, VerifyValueDest.class);
+
+        // then
+        // 1. Tipos iguais
+        assertThat(dest.getSameType()).isEqualTo(source.getSameType());
+
+        // 2. Wrapper → primitivo (null vira default)
+        assertThat(dest.getWrapperToPrimitiveNull()).isZero();
+
+        // 3. Primitivo default → wrapper (vira null)
+        assertThat(dest.getPrimitiveToWrapperZero()).isNull();
+
+        // 4. Enum → Enum
+        assertThat(source.getStatus().toString()).hasToString(StatusTestDest.ACTIVE.toString());
+
+        // 5. Collection ignorada
+        assertThat(dest.getListDifferentType()).isNull();
+
+        // 6. Fallback: tipos diferentes
+        assertThat(dest.getFallback()).isEqualTo("stringFallback");
+    }
+
 }

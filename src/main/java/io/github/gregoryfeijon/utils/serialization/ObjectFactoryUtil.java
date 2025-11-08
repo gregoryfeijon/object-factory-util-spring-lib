@@ -2,16 +2,19 @@ package io.github.gregoryfeijon.utils.serialization;
 
 
 import com.google.gson.Gson;
+import io.github.gregoryfeijon.domain.annotation.Exclude;
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.FieldUtil;
+import io.github.gregoryfeijon.utils.ReflectionTypeUtils;
 import io.github.gregoryfeijon.utils.ReflectionUtil;
 import io.github.gregoryfeijon.utils.gson.GsonTypesUtil;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerAdapter;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.hibernate.proxy.HibernateProxy;
@@ -32,19 +35,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.github.gregoryfeijon.utils.TypeHelper.defaultValueFor;
-import static io.github.gregoryfeijon.utils.TypeHelper.getRawType;
-import static io.github.gregoryfeijon.utils.TypeHelper.isClassMapCollection;
-import static io.github.gregoryfeijon.utils.TypeHelper.isCollection;
-import static io.github.gregoryfeijon.utils.TypeHelper.isPrimitiveOrEnum;
-import static io.github.gregoryfeijon.utils.TypeHelper.isWrapperType;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.defaultValueFor;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.getRawType;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isClassMapCollection;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isCollection;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isPrimitiveOrEnum;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isWrapperType;
 import static java.util.Arrays.stream;
 
 /**
@@ -58,6 +61,7 @@ import static java.util.Arrays.stream;
  */
 @SuppressWarnings("java:S6204")
 //warning do .toList() suprimida, uma vez que não se aplica nessa classe, que é uma classe útil
+@Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ObjectFactoryUtil {
 
@@ -277,7 +281,10 @@ public final class ObjectFactoryUtil {
         return fields.stream().collect(Collectors.toMap(
                 ObjectFactoryUtil::resolveFieldKey,
                 Function.identity(),
-                (a, b) -> a
+                (a, b) -> {
+                    log.warn("Duplicate field key '{}' detected. Keeping first occurrence.", a.getName());
+                    return a;
+                }
         ));
     }
 
@@ -342,16 +349,27 @@ public final class ObjectFactoryUtil {
      */
     private static <T, S> List<Field> getFieldsToCopy(S source, T dest) {
         List<Field> sourceFields = new ArrayList<>(ReflectionUtil.getFieldsAsCollection(source));
-        List<Field> fieldsToRemove = sourceFields.stream().filter(PREDICATE_MODIFIERS).collect(Collectors.toList());
+        Set<Field> fieldsToRemove = sourceFields.stream()
+                .filter(PREDICATE_MODIFIERS)
+                .collect(Collectors.toSet()); // ← muda pra Set
 
-        String[] exclude = getExcludeFromAnnotation(dest);
+        String[] exclude = getExcludeFromObjectConstructorAnnotation(dest);
         if (ArrayUtils.isNotEmpty(exclude)) {
             getFieldsAnnotatedToExclude(fieldsToRemove, sourceFields, exclude);
         }
-        if (!CollectionUtils.isEmpty(fieldsToRemove)) {
+        getFieldsFromSourceAnnotatedToExclude(fieldsToRemove, sourceFields);
+
+        if (!fieldsToRemove.isEmpty()) {
             sourceFields.removeAll(fieldsToRemove);
         }
+
         return sourceFields;
+    }
+
+    private static void getFieldsFromSourceAnnotatedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields) {
+        sourceFields.stream()
+                .filter(f -> f.isAnnotationPresent(Exclude.class))
+                .forEach(fieldsToRemove::add);
     }
 
     /**
@@ -362,15 +380,12 @@ public final class ObjectFactoryUtil {
      * @param sourceFields   {@linkplain List}&lt;{@linkplain Field}&gt;
      * @param exclude        {@linkplain String}[]
      */
-    private static void getFieldsAnnotatedToExclude(List<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
-        stream(exclude).forEach(excludeField -> {
-            Optional<Field> opField = sourceFields.stream()
-                    .filter(sourceField -> sourceField.getName().equalsIgnoreCase(excludeField))
-                    .findAny();
-            if (opField.isPresent() && !fieldsToRemove.contains(opField.get())) {
-                fieldsToRemove.add(opField.get());
-            }
-        });
+    private static void getFieldsAnnotatedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
+        stream(exclude)
+                .forEach(excludeField -> sourceFields.stream()
+                        .filter(sourceField -> sourceField.getName().equalsIgnoreCase(excludeField))
+                        .findAny()
+                        .ifPresent(fieldsToRemove::add));
     }
 
     /**
@@ -382,7 +397,7 @@ public final class ObjectFactoryUtil {
      * @param dest - &lt;T&gt;
      * @return {@linkplain String}[]
      */
-    private static <T> String[] getExcludeFromAnnotation(T dest) {
+    private static <T> String[] getExcludeFromObjectConstructorAnnotation(T dest) {
         if (dest.getClass().isAnnotationPresent(ObjectConstructor.class)) {
             return dest.getClass().getAnnotation(ObjectConstructor.class).exclude();
         }
@@ -568,7 +583,7 @@ public final class ObjectFactoryUtil {
     private static Object serializingCloneObjects(Object sourceValue, Class<?> clazz) {
         Object clone;
         byte[] byteClone;
-        if (clazz.isPrimitive() || isWrapperType(clazz)) {
+        if (ReflectionTypeUtils.isSimpleType(clazz)) {
             byteClone = SerializationUtils.serialize(sourceValue);
             clone = SerializationUtil.deserialize(byteClone);
         } else {

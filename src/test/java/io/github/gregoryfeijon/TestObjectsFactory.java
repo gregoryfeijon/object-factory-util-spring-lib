@@ -59,4 +59,40 @@ final class TestObjectsFactory {
                 .objectBarMap(Map.of("key", createObjectBar()))
                 .build();
     }
+
+    static PrimitiveArrayHolder createPrimitiveArrayHolder() {
+        return PrimitiveArrayHolder.builder()
+                .intValues(new int[]{1, 2, 3})
+                .build();
+    }
+
+    static WrapperArrayHolder createWrapperArrayHolder() {
+        return WrapperArrayHolder.builder()
+                .integerValues(new Integer[]{1, 2, 3})
+                .build();
+    }
+
+    static NonSerializableObject createNonSerializableObject() {
+        return NonSerializableObject.builder()
+                .thread(new Thread())
+                .build();
+    }
+
+    static FooDuplicated createFooDuplicatedObject() {
+        return FooDuplicated.builder()
+                .nome1("nome 1 duplicado")
+                .nome2("nome 2 duplicado")
+                .build();
+    }
+
+    static VerifyValueSource createVerifyValueSource() {
+        return VerifyValueSource.builder()
+                .sameType("ok")
+                .wrapperToPrimitiveNull(null)
+                .primitiveToWrapperZero(0)
+                .status(StatusTestSource.ACTIVE)
+                .listDifferentType(List.of("a", "b"))
+                .fallback("stringFallback")
+                .build();
+    }
 }
