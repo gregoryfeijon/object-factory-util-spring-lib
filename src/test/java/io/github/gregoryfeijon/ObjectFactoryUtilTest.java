@@ -173,8 +173,8 @@ class ObjectFactoryUtilTest {
 
     @Test
     void shouldThrowExceptionWhenSerializationFails() {
-        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(TestObjectsFactory.createNonSerializableObject(),
-                NonSerializableObject.class))
+        var auxTest = TestObjectsFactory.createNonSerializableObject();
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(auxTest, NonSerializableObject.class))
                 .isInstanceOf(ApiException.class)
                 .hasMessageContaining("Failed making field");
     }
@@ -233,4 +233,33 @@ class ObjectFactoryUtilTest {
                 .isInstanceOf(ApiException.class)
                 .hasMessageContaining("O objeto de destino é nulo");
     }
+
+    @Test
+    void shouldHandleAllVerifyValueBranches() {
+        // given
+        VerifyValueSource source = TestObjectsFactory.createVerifyValueSource();
+
+        // when
+        VerifyValueDest dest = ObjectFactoryUtil.createFromObject(source, VerifyValueDest.class);
+
+        // then
+        // 1. Tipos iguais
+        assertThat(dest.getSameType()).isEqualTo(source.getSameType());
+
+        // 2. Wrapper → primitivo (null vira default)
+        assertThat(dest.getWrapperToPrimitiveNull()).isZero();
+
+        // 3. Primitivo default → wrapper (vira null)
+        assertThat(dest.getPrimitiveToWrapperZero()).isNull();
+
+        // 4. Enum → Enum
+        assertThat(source.getStatus().toString()).hasToString(StatusTestDest.ACTIVE.toString());
+
+        // 5. Collection ignorada
+        assertThat(dest.getListDifferentType()).isNull();
+
+        // 6. Fallback: tipos diferentes
+        assertThat(dest.getFallback()).isEqualTo("stringFallback");
+    }
+
 }

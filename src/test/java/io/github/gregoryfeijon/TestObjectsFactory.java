@@ -84,4 +84,15 @@ final class TestObjectsFactory {
                 .nome2("nome 2 duplicado")
                 .build();
     }
+
+    static VerifyValueSource createVerifyValueSource() {
+        return VerifyValueSource.builder()
+                .sameType("ok")
+                .wrapperToPrimitiveNull(null)
+                .primitiveToWrapperZero(0)
+                .status(StatusTestSource.ACTIVE)
+                .listDifferentType(List.of("a", "b"))
+                .fallback("stringFallback")
+                .build();
+    }
 }
