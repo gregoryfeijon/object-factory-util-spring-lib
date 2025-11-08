@@ -26,6 +26,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Advanced utility class for inspecting and handling Java types using Reflection.
+ * <p>
+ * Provides methods to detect primitive types, wrappers, collections, maps,
+ * and to resolve generic types and obtain default primitive values.
+ * </p>
+ *
+ * <p><b>Thread-safe:</b> Internal caches use {@link ConcurrentHashMap}
+ * to optimize performance in reflection-heavy environments.</p>
+ *
+ * @author Gregory
+ * @since 1.0
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ReflectionTypeUtils {
 
@@ -41,11 +54,21 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * <strong>Método para obter o tipo de {@linkplain Collection} utilizado no
-     * atributo.</strong>
+     * Resolves the raw {@link Class} corresponding to a given {@link Type}.
+     * <p>
+     * Supports resolution of:
+     * <ul>
+     *     <li>{@link Class}</li>
+     *     <li>{@link ParameterizedType}</li>
+     *     <li>{@link GenericArrayType}</li>
+     *     <li>{@link TypeVariable}</li>
+     *     <li>{@link WildcardType}</li>
+     * </ul>
      *
-     * @param genericType - {@linkplain Type}
-     * @return {@linkplain Class}&lt;?&gt;
+     * @param genericType the type to resolve
+     * @return the resolved concrete {@link Class}
+     * @throws ClassNotFoundException   if the type cannot be resolved
+     * @throws IllegalArgumentException if the type is unknown or unsupported
      */
     public static Class<?> getRawType(Type genericType) throws ClassNotFoundException {
         if (genericType instanceof Class<?> clazz) {
@@ -64,66 +87,67 @@ public final class ReflectionTypeUtils {
             if (bounds.length > 0) {
                 return getRawType(bounds[0]);
             }
-            throw new IllegalArgumentException(
-                    "TypeVariable without bounds: " + typeVariable.getName()
-            );
+            throw new IllegalArgumentException("TypeVariable without bounds: " + typeVariable.getName());
         }
         if (genericType instanceof WildcardType wildcardType) {
             Type[] upperBounds = wildcardType.getUpperBounds();
             if (upperBounds.length > 0) {
                 return getRawType(upperBounds[0]);
             }
-            throw new IllegalArgumentException(
-                    "WildcardType without upper bounds: " + wildcardType
-            );
+            throw new IllegalArgumentException("WildcardType without upper bounds: " + wildcardType);
         }
-        throw new IllegalArgumentException(
-                "Unsupported Type implementation: " + genericType.getClass().getName()
-        );
+        throw new IllegalArgumentException("Unsupported Type implementation: " + genericType.getClass().getName());
     }
 
     /**
-     * <strong>Método para verificar se é um tipo primitivo ou
-     * {@linkplain Enum}.</strong>
+     * Checks whether the given type is primitive or an {@link Enum}.
      *
-     * @param type - {@linkplain Class}&lt;?&gt;
-     * @return boolean
+     * @param type the class to inspect
+     * @return {@code true} if the type is primitive or enum; otherwise {@code false}
      */
     public static boolean isPrimitiveOrEnum(Class<?> type) {
         return type.isPrimitive() || type.isEnum();
     }
 
     /**
-     * <strong>Método para verificar se é uma {@linkplain Collection} ou um
-     * {@linkplain Map}.</strong>
+     * Checks whether the given class represents a {@link Collection} or {@link Map}.
      *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return boolean
+     * @param clazz the class to inspect
+     * @return {@code true} if the class is a collection or a map; otherwise {@code false}
      */
     public static boolean isClassMapCollection(Class<?> clazz) {
         return isCollection(clazz) || isMap(clazz);
     }
 
     /**
-     * <strong>Método para verificar se é uma {@linkplain Collection}.</strong>
+     * Checks whether the given class represents a {@link Collection}.
      *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return boolean
+     * @param clazz the class to inspect
+     * @return {@code true} if the class is a collection; otherwise {@code false}
      */
     public static boolean isCollection(Class<?> clazz) {
         return Collection.class.isAssignableFrom(clazz);
     }
 
     /**
-     * <strong>Método para verificar se é um {@linkplain Map}.</strong>
+     * Checks whether the given class represents a {@link Map}.
      *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return boolean
+     * @param clazz the class to inspect
+     * @return {@code true} if the class is a map; otherwise {@code false}
      */
     public static boolean isMap(Class<?> clazz) {
         return Map.class.isAssignableFrom(clazz);
     }
 
+    /**
+     * Determines if a type is considered "simple" — that is,
+     * a primitive, wrapper, or array of primitives/wrappers.
+     * <p>
+     * Results are cached for repeated lookups.
+     *
+     * @param clazz the class to inspect
+     * @return {@code true} if the class represents a simple type; otherwise {@code false}
+     */
     public static boolean isSimpleType(Class<?> clazz) {
         return SIMPLE_TYPE_CACHE.computeIfAbsent(clazz, c ->
                 c.isPrimitive()
@@ -132,6 +156,12 @@ public final class ReflectionTypeUtils {
         );
     }
 
+    /**
+     * Checks whether the given class represents an array of primitive or wrapper types.
+     *
+     * @param clazz the class to inspect
+     * @return {@code true} if the class is an array of primitives or wrappers; otherwise {@code false}
+     */
     private static boolean isArrayOfPrimitiveOrWrapper(Class<?> clazz) {
         return ARRAY_PRIMITIVE_OR_WRAPPER_CACHE.computeIfAbsent(clazz, c -> {
             if (!c.isArray()) {
@@ -143,11 +173,11 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * <strong>Método responsável por verificar se o tipo do valor sendo copiado é
-     * um wrapper.</strong>
+     * Checks whether the given class is a wrapper type
+     * (e.g. {@link Integer}, {@link Boolean}, {@link LocalDate}, etc.).
      *
-     * @param clazz - {@linkplain Class}&lt;?&gt;
-     * @return {@linkplain Boolean}
+     * @param clazz the class to inspect
+     * @return {@code true} if it represents a wrapper type; otherwise {@code false}
      */
     public static boolean isWrapperType(Class<?> clazz) {
         return WRAPPER_CACHE.computeIfAbsent(clazz, c ->
@@ -156,11 +186,11 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * Creates a set of all wrapper types.
+     * Builds the complete set of wrapper types.
      * <p>
-     * This includes numbers, dates, text types, and other common wrapper types.
+     * Includes numbers, date/time classes, text types, and UUID.
      *
-     * @return A set of all wrapper types
+     * @return an immutable set of wrapper classes
      */
     public static Set<Class<?>> getWrapperTypes() {
         Set<Class<?>> wrappers = new HashSet<>();
@@ -174,9 +204,9 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * Creates a set of wrapper types for text classes.
+     * Returns the set of text-related wrapper types (e.g. {@link String}, {@link Character}).
      *
-     * @return A set of text-related classes
+     * @return a set of text-related classes
      */
     public static Set<Class<?>> textTypes() {
         Set<Class<?>> aux = new HashSet<>();
@@ -187,9 +217,9 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * Creates a set of wrapper types for date/time classes.
+     * Returns the set of date/time-related wrapper types.
      *
-     * @return A set of date/time-related classes
+     * @return a set of temporal-related classes
      */
     public static Set<Class<?>> dateTypes() {
         Set<Class<?>> aux = new HashSet<>();
@@ -204,9 +234,9 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * Creates a set of wrapper types for number classes.
+     * Returns the set of numeric wrapper types.
      *
-     * @return A set of number-related classes
+     * @return a set of number-related classes
      */
     public static Set<Class<?>> numberTypes() {
         Set<Class<?>> aux = new HashSet<>();
@@ -219,7 +249,7 @@ public final class ReflectionTypeUtils {
     }
 
     /**
-     * Creates a map of default values for primitive types.
+     * Initializes the default values for primitive types.
      */
     private static void initDefaultValues() {
         DEFAULT_VALUES.put(boolean.class, Boolean.FALSE);
@@ -232,6 +262,19 @@ public final class ReflectionTypeUtils {
         DEFAULT_VALUES.put(double.class, 0.0D);
     }
 
+    /**
+     * Returns the default primitive value for a given class.
+     * <p>
+     * Examples:
+     * <ul>
+     *     <li>{@code int.class → 0}</li>
+     *     <li>{@code boolean.class → false}</li>
+     * </ul>
+     *
+     * @param clazz the primitive class type
+     * @param <T>   the expected generic type
+     * @return the default value for the primitive type, or {@code null} if not mapped
+     */
     @SuppressWarnings("unchecked")
     public static <T> T defaultValueFor(Class<T> clazz) {
         return (T) DEFAULT_VALUES.get(clazz);
