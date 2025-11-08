@@ -2,6 +2,7 @@ package io.github.gregoryfeijon.utils.serialization;
 
 
 import com.google.gson.Gson;
+import io.github.gregoryfeijon.domain.annotation.Exclude;
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.exception.ApiException;
@@ -34,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -348,16 +349,27 @@ public final class ObjectFactoryUtil {
      */
     private static <T, S> List<Field> getFieldsToCopy(S source, T dest) {
         List<Field> sourceFields = new ArrayList<>(ReflectionUtil.getFieldsAsCollection(source));
-        List<Field> fieldsToRemove = sourceFields.stream().filter(PREDICATE_MODIFIERS).collect(Collectors.toList());
+        Set<Field> fieldsToRemove = sourceFields.stream()
+                .filter(PREDICATE_MODIFIERS)
+                .collect(Collectors.toSet()); // ← muda pra Set
 
-        String[] exclude = getExcludeFromAnnotation(dest);
+        String[] exclude = getExcludeFromObjectConstructorAnnotation(dest);
         if (ArrayUtils.isNotEmpty(exclude)) {
             getFieldsAnnotatedToExclude(fieldsToRemove, sourceFields, exclude);
         }
-        if (!CollectionUtils.isEmpty(fieldsToRemove)) {
+        getFieldsFromSourceAnnotatedToExclude(fieldsToRemove, sourceFields);
+
+        if (!fieldsToRemove.isEmpty()) {
             sourceFields.removeAll(fieldsToRemove);
         }
+
         return sourceFields;
+    }
+
+    private static void getFieldsFromSourceAnnotatedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields) {
+        sourceFields.stream()
+                .filter(f -> f.isAnnotationPresent(Exclude.class))
+                .forEach(fieldsToRemove::add);
     }
 
     /**
@@ -368,15 +380,12 @@ public final class ObjectFactoryUtil {
      * @param sourceFields   {@linkplain List}&lt;{@linkplain Field}&gt;
      * @param exclude        {@linkplain String}[]
      */
-    private static void getFieldsAnnotatedToExclude(List<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
-        stream(exclude).forEach(excludeField -> {
-            Optional<Field> opField = sourceFields.stream()
-                    .filter(sourceField -> sourceField.getName().equalsIgnoreCase(excludeField))
-                    .findAny();
-            if (opField.isPresent() && !fieldsToRemove.contains(opField.get())) {
-                fieldsToRemove.add(opField.get());
-            }
-        });
+    private static void getFieldsAnnotatedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
+        stream(exclude)
+                .forEach(excludeField -> sourceFields.stream()
+                        .filter(sourceField -> sourceField.getName().equalsIgnoreCase(excludeField))
+                        .findAny()
+                        .ifPresent(fieldsToRemove::add));
     }
 
     /**
@@ -388,7 +397,7 @@ public final class ObjectFactoryUtil {
      * @param dest - &lt;T&gt;
      * @return {@linkplain String}[]
      */
-    private static <T> String[] getExcludeFromAnnotation(T dest) {
+    private static <T> String[] getExcludeFromObjectConstructorAnnotation(T dest) {
         if (dest.getClass().isAnnotationPresent(ObjectConstructor.class)) {
             return dest.getClass().getAnnotation(ObjectConstructor.class).exclude();
         }

@@ -1,5 +1,6 @@
 package io.github.gregoryfeijon;
 
+import io.github.gregoryfeijon.domain.annotation.Exclude;
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,4 +29,9 @@ class FooWrapper {
 
     @FieldCopyName(value = "objectBarMap")
     private Map<String, ObjectFoo> objectFooMap;
+
+    private String fieldExcluded;
+
+    @Exclude
+    private String fieldExcludedWithAnnotation;
 }

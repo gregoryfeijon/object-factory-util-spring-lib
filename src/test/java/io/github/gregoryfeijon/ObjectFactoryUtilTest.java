@@ -48,12 +48,14 @@ class ObjectFactoryUtilTest {
     }
 
     @Test
-    void shouldCopyWrapperWithCollections() {
+    void shouldCopyWrapperWithCollectionsAndExcludeFieldMarked() {
         FooWrapper fooWrapper = new FooWrapper();
         fooWrapper.setPrimitiveFoo(new PrimitiveFoo());
         fooWrapper.setObjectFoo(new ObjectFoo());
         fooWrapper.setPrimitiveFooList(List.of(new PrimitiveFoo()));
         fooWrapper.setObjectFooMap(Map.of("key", new ObjectFoo()));
+        fooWrapper.setFieldExcluded("This value shouldn't be copied");
+        fooWrapper.setFieldExcludedWithAnnotation("This value shouldn't be copied too");
 
         BarWrapper barWrapper = ObjectFactoryUtil.createFromObject(fooWrapper, BarWrapper.class);
 
@@ -62,6 +64,8 @@ class ObjectFactoryUtilTest {
         assertThat(barWrapper.getObjectBar()).isNotNull();
         assertThat(barWrapper.getPrimitiveBarList()).hasSize(1);
         assertThat(barWrapper.getObjectBarMap()).containsKey("key");
+        assertThat(barWrapper.getFieldExcluded()).isNull();
+        assertThat(barWrapper.getFieldExcludedWithAnnotation()).isNull();
     }
 
     @Test
@@ -217,5 +221,16 @@ class ObjectFactoryUtilTest {
 
         // Se não deu exceção, o merge foi resolvido corretamente
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDestinationIsNull() {
+        PrimitiveFoo source = TestObjectsFactory.createPrimitiveFoo();
+        PrimitiveFoo dest = null;
+
+        // Passando dest como null, deve lançar ApiException
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(source, dest))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("O objeto de destino é nulo");
     }
 }
