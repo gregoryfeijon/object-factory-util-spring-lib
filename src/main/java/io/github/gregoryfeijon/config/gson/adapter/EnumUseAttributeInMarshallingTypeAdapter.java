@@ -6,6 +6,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
+import io.github.gregoryfeijon.utils.enums.EnumMarshallingUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ReflectionUtils;
@@ -47,7 +48,7 @@ public class EnumUseAttributeInMarshallingTypeAdapter<T> extends TypeAdapter<T> 
      * If the enum value is annotated with {@link EnumUseAttributeInMarshalling},
      * the specified attribute's value will be used instead of the enum name.
      *
-     * @param out The JSON writer
+     * @param out   The JSON writer
      * @param value The enum value to write
      * @throws IOException If an I/O error occurs
      */
@@ -61,7 +62,7 @@ public class EnumUseAttributeInMarshallingTypeAdapter<T> extends TypeAdapter<T> 
             Enum<?> enumValue = (Enum<?>) value;
             EnumUseAttributeInMarshalling useAttribute = getEnumUseAttributeInMarshallingAnnotation(enumValue);
             String attributeName = Optional.ofNullable(useAttribute)
-                    .map(EnumUseAttributeInMarshallingTypeAdapter::getAttributeName)
+                    .map(EnumMarshallingUtil::getAttributeName)
                     .orElse(null);
 
             if (attributeName != null) {
@@ -95,7 +96,7 @@ public class EnumUseAttributeInMarshallingTypeAdapter<T> extends TypeAdapter<T> 
                 Enum<?> enumValue = (Enum<?>) value;
                 EnumUseAttributeInMarshalling useAttribute = getEnumUseAttributeInMarshallingAnnotation(enumValue);
                 String attributeName = Optional.ofNullable(useAttribute)
-                        .map(EnumUseAttributeInMarshallingTypeAdapter::getAttributeName)
+                        .map(EnumMarshallingUtil::getAttributeName)
                         .orElse(null);
 
                 if (isValidEnum(enumValue, attributeName, attributeValue)) {
@@ -123,39 +124,10 @@ public class EnumUseAttributeInMarshallingTypeAdapter<T> extends TypeAdapter<T> 
     }
 
     /**
-     * Extracts the attribute name to use from the annotation.
-     * <p>
-     * Prioritizes in order: serializeAttributeName, deserializeAttributeName, defaultAttributeName.
-     *
-     * @param useAttribute The annotation
-     * @return The attribute name, or null if none is specified
-     */
-    private static String getAttributeName(EnumUseAttributeInMarshalling useAttribute) {
-        if (useAttribute != null) {
-            String serializeAttributeName = useAttribute.serializeAttributeName();
-            String deserializeAttributeName = useAttribute.deserializeAttributeName();
-            String defaultAttributeName = useAttribute.defaultAttributeName();
-
-            if (!serializeAttributeName.isEmpty()) {
-                return serializeAttributeName;
-            }
-
-            if (!deserializeAttributeName.isEmpty()) {
-                return deserializeAttributeName;
-            }
-
-            if (!defaultAttributeName.isEmpty()) {
-                return defaultAttributeName;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Determines if an enum constant matches the given attribute value.
      *
-     * @param enumValue The enum constant to check
-     * @param attributeName The attribute name to use for comparison
+     * @param enumValue      The enum constant to check
+     * @param attributeName  The attribute name to use for comparison
      * @param attributeValue The attribute value to match against
      * @return true if the enum matches the attribute value, false otherwise
      */
@@ -171,7 +143,7 @@ public class EnumUseAttributeInMarshallingTypeAdapter<T> extends TypeAdapter<T> 
     /**
      * Retrieves the value of a specified attribute from an enum constant.
      *
-     * @param value The enum constant
+     * @param value         The enum constant
      * @param attributeName The name of the attribute to retrieve
      * @return The attribute value, or null if not found
      */

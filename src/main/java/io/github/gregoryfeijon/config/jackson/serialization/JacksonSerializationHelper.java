@@ -25,7 +25,7 @@ public final class JacksonSerializationHelper {
     /**
      * Retrieves the {@link EnumUseAttributeInMarshalling} annotation from an enum constant.
      *
-     * @param value The enum constant
+     * @param value    The enum constant
      * @param enumType The enum class
      * @return The annotation, or null if not present
      * @throws IllegalStateException If enumType is null
@@ -44,41 +44,12 @@ public final class JacksonSerializationHelper {
     }
 
     /**
-     * Extracts the attribute name to use from the annotation.
-     * <p>
-     * Prioritizes in order: serializeAttributeName, deserializeAttributeName, defaultAttributeName.
-     *
-     * @param useAttribute The annotation
-     * @return The attribute name, or null if none is specified
-     */
-    public static String getAttributeName(EnumUseAttributeInMarshalling useAttribute) {
-        if (useAttribute != null) {
-            String serializeAttributeName = useAttribute.serializeAttributeName();
-            String deserializeAttributeName = useAttribute.deserializeAttributeName();
-            String defaultAttributeName = useAttribute.defaultAttributeName();
-
-            if (!serializeAttributeName.isEmpty()) {
-                return serializeAttributeName;
-            }
-
-            if (!deserializeAttributeName.isEmpty()) {
-                return deserializeAttributeName;
-            }
-
-            if (!defaultAttributeName.isEmpty()) {
-                return defaultAttributeName;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Determines if an enum constant matches the given attribute value.
      *
-     * @param enumValue The enum constant to check
-     * @param attributeName The attribute name to use for comparison
+     * @param enumValue      The enum constant to check
+     * @param attributeName  The attribute name to use for comparison
      * @param attributeValue The attribute value to match against
-     * @param enumType The enum class
+     * @param enumType       The enum class
      * @return true if the enum matches the attribute value, false otherwise
      */
     public static boolean isValidEnum(Enum<?> enumValue, String attributeName, String attributeValue, Class<? extends Enum<?>> enumType) {
@@ -93,9 +64,9 @@ public final class JacksonSerializationHelper {
     /**
      * Retrieves the value of a specified attribute from an enum constant.
      *
-     * @param value The enum constant
+     * @param value         The enum constant
      * @param attributeName The name of the attribute to retrieve
-     * @param enumType The enum class
+     * @param enumType      The enum class
      * @return The attribute value, or null if not found
      * @throws IllegalStateException If enumType is null
      */

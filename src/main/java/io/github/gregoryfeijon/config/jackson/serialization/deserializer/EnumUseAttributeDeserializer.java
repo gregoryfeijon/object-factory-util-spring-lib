@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import io.github.gregoryfeijon.config.jackson.serialization.JacksonSerializationHelper;
 import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
+import io.github.gregoryfeijon.utils.enums.EnumMarshallingUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class EnumUseAttributeDeserializer extends StdDeserializer<Enum<?>> imple
      * If the enum is annotated with {@link EnumUseAttributeInMarshalling},
      * the method will match the JSON value against the specified attribute's value.
      *
-     * @param p The JSON parser
+     * @param p    The JSON parser
      * @param ctxt The deserialization context
      * @return The enum constant, or null if no match is found
      * @throws IOException If an I/O error occurs
@@ -75,7 +75,7 @@ public class EnumUseAttributeDeserializer extends StdDeserializer<Enum<?>> imple
         for (Enum<?> constant : enumType.getEnumConstants()) {
             EnumUseAttributeInMarshalling annotation = getEnumUseAttributeInMarshallingAnnotation(constant, enumType);
             String attr = Optional.ofNullable(annotation)
-                    .map(JacksonSerializationHelper::getAttributeName)
+                    .map(EnumMarshallingUtil::getAttributeName)
                     .orElse(null);
 
             if (isValidEnum(constant, attr, text, enumType)) {
@@ -90,7 +90,7 @@ public class EnumUseAttributeDeserializer extends StdDeserializer<Enum<?>> imple
      * <p>
      * This method determines the actual enum type to use for deserialization.
      *
-     * @param ctxt The deserialization context
+     * @param ctxt     The deserialization context
      * @param property The bean property being deserialized
      * @return A deserializer for the specific property type
      * @throws JsonMappingException If there is an error creating the contextualized deserializer

@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import io.github.gregoryfeijon.config.jackson.serialization.JacksonSerializationHelper;
 import io.github.gregoryfeijon.domain.annotation.EnumUseAttributeInMarshalling;
+import io.github.gregoryfeijon.utils.enums.EnumMarshallingUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -59,8 +59,8 @@ public class EnumUseAttributeSerializer extends JsonSerializer<Enum<?>> implemen
      * If the enum value is annotated with {@link EnumUseAttributeInMarshalling},
      * the specified attribute's value will be used instead of the enum name.
      *
-     * @param value The enum value to serialize
-     * @param gen The JSON generator
+     * @param value       The enum value to serialize
+     * @param gen         The JSON generator
      * @param serializers The serializer provider
      * @throws IOException If an I/O error occurs
      */
@@ -73,7 +73,7 @@ public class EnumUseAttributeSerializer extends JsonSerializer<Enum<?>> implemen
         }
         EnumUseAttributeInMarshalling use = getEnumUseAttributeInMarshallingAnnotation(value, enumType);
         String attr = Optional.ofNullable(use)
-                .map(JacksonSerializationHelper::getAttributeName)
+                .map(EnumMarshallingUtil::getAttributeName)
                 .orElse(null);
         var attributeValue = getAttributeValue(value, attr, enumType);
         if (isValidEnum(value, attr, attributeValue, enumType)) {
@@ -88,7 +88,7 @@ public class EnumUseAttributeSerializer extends JsonSerializer<Enum<?>> implemen
      * <p>
      * This method determines the actual enum type to use for serialization.
      *
-     * @param prov The serializer provider
+     * @param prov     The serializer provider
      * @param property The bean property being serialized
      * @return A serializer for the specific property type
      * @throws JsonMappingException If there is an error creating the contextualized serializer
