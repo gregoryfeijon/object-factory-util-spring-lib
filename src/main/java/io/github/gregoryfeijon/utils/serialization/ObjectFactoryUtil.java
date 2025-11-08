@@ -6,6 +6,7 @@ import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.FieldUtil;
+import io.github.gregoryfeijon.utils.ReflectionTypeUtils;
 import io.github.gregoryfeijon.utils.ReflectionUtil;
 import io.github.gregoryfeijon.utils.gson.GsonTypesUtil;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerAdapter;
@@ -39,12 +40,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.defaultValueFor;
-import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.getRawType;
-import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isClassMapCollection;
-import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isCollection;
-import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isPrimitiveOrEnum;
-import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isWrapperType;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.defaultValueFor;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.getRawType;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isClassMapCollection;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isCollection;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isPrimitiveOrEnum;
+import static io.github.gregoryfeijon.utils.ReflectionTypeUtils.isWrapperType;
 import static java.util.Arrays.stream;
 
 /**

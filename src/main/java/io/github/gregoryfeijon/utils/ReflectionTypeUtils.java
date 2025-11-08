@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon.utils.serialization;
+package io.github.gregoryfeijon.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,6 @@
 package io.github.gregoryfeijon.utils;
 
 import io.github.gregoryfeijon.exception.ApiException;
-import io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ClassUtils;
