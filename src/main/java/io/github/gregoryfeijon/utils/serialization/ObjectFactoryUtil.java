@@ -39,12 +39,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.github.gregoryfeijon.utils.TypeHelper.defaultValueFor;
-import static io.github.gregoryfeijon.utils.TypeHelper.getRawType;
-import static io.github.gregoryfeijon.utils.TypeHelper.isClassMapCollection;
-import static io.github.gregoryfeijon.utils.TypeHelper.isCollection;
-import static io.github.gregoryfeijon.utils.TypeHelper.isPrimitiveOrEnum;
-import static io.github.gregoryfeijon.utils.TypeHelper.isWrapperType;
+import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.defaultValueFor;
+import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.getRawType;
+import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isClassMapCollection;
+import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isCollection;
+import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isPrimitiveOrEnum;
+import static io.github.gregoryfeijon.utils.serialization.ReflectionTypeUtils.isWrapperType;
 import static java.util.Arrays.stream;
 
 /**
@@ -568,7 +568,7 @@ public final class ObjectFactoryUtil {
     private static Object serializingCloneObjects(Object sourceValue, Class<?> clazz) {
         Object clone;
         byte[] byteClone;
-        if (clazz.isPrimitive() || isWrapperType(clazz)) {
+        if (ReflectionTypeUtils.isSimpleType(clazz)) {
             byteClone = SerializationUtils.serialize(sourceValue);
             clone = SerializationUtil.deserialize(byteClone);
         } else {

@@ -97,7 +97,11 @@ public final class SerializerProvider {
         if (ADAPTERS.isEmpty()) {
             initializeIfEmpty();
         }
-        return ADAPTERS.get(defaultType);
+        SerializerAdapter adapter = ADAPTERS.get(defaultType);
+        if (adapter == null) {
+            throw new IllegalStateException("No default adapter found! Verify SerializerProvider initialization.");
+        }
+        return adapter;
     }
 
     /**
