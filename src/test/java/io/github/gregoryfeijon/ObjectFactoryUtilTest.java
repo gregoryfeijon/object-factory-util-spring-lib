@@ -1,11 +1,14 @@
 package io.github.gregoryfeijon;
 
+import io.github.gregoryfeijon.domain.enums.SerializationType;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.serialization.ObjectFactoryUtil;
+import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -118,5 +121,66 @@ class ObjectFactoryUtilTest {
         assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(emptyList))
                 .isInstanceOf(ApiException.class)
                 .hasMessageContaining("não possui elementos");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSourceIsNull() {
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(null, PrimitiveBar.class))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("objeto a ser copiado é nulo");
+    }
+
+    @Test
+    void shouldHandleNullFieldsGracefully() {
+        ObjectFoo foo = new ObjectFoo(null, null, null);
+        ObjectBar bar = ObjectFactoryUtil.createFromObject(foo, ObjectBar.class);
+        assertThat(bar).isNotNull();
+        assertThat(bar.getIntegerValue()).isNull();
+        assertThat(bar.getBdValue()).isNull();
+    }
+
+    @Test
+    void shouldClonePrimitiveArrayInsideHolder() {
+        PrimitiveArrayHolder holder = TestObjectsFactory.createPrimitiveArrayHolder();
+        PrimitiveArrayHolder clone = ObjectFactoryUtil.createFromObject(holder, PrimitiveArrayHolder.class);
+
+        assertThat(clone.getIntValues())
+                .containsExactly(holder.getIntValues())
+                .isNotSameAs(holder.getIntValues());
+    }
+
+    @Test
+    void shouldCloneWrapperArrayInsideHolder() {
+        WrapperArrayHolder holder = TestObjectsFactory.createWrapperArrayHolder();
+        WrapperArrayHolder clone = ObjectFactoryUtil.createFromObject(holder, WrapperArrayHolder.class);
+
+        assertThat(clone.getIntegerValues())
+                .containsExactly(holder.getIntegerValues())
+                .isNotSameAs(holder.getIntegerValues());
+    }
+
+    @Test
+    void shouldInitializeProviderIfEmpty() {
+        SerializerProvider.initialize(new EnumMap<>(SerializationType.class), SerializationType.GSON);
+        SerializerProvider.getAdapter(); // força lazy init
+        assertThat(SerializerProvider.getAdapter()).isNotNull();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSerializationFails() {
+        assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(TestObjectsFactory.createNonSerializableObject(),
+                NonSerializableObject.class))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("Failed making field");
+    }
+
+    @Test
+    void shouldIgnoreFieldsWithoutMatchingNamesOrAnnotations() {
+        MismatchSource source = new MismatchSource();
+        source.setFoo("value");
+
+        MismatchTarget target = ObjectFactoryUtil.createFromObject(source, MismatchTarget.class);
+
+        assertThat(target.getBar()).isNull();
     }
 }

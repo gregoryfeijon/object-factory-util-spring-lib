@@ -59,4 +59,22 @@ final class TestObjectsFactory {
                 .objectBarMap(Map.of("key", createObjectBar()))
                 .build();
     }
+
+    static PrimitiveArrayHolder createPrimitiveArrayHolder() {
+        return PrimitiveArrayHolder.builder()
+                .intValues(new int[]{1, 2, 3})
+                .build();
+    }
+
+    static WrapperArrayHolder createWrapperArrayHolder() {
+        return WrapperArrayHolder.builder()
+                .integerValues(new Integer[]{1, 2, 3})
+                .build();
+    }
+
+    static NonSerializableObject createNonSerializableObject() {
+        return NonSerializableObject.builder()
+                .thread(new Thread())
+                .build();
+    }
 }
