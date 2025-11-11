@@ -1,7 +1,6 @@
 package io.github.gregoryfeijon.config.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.github.gregoryfeijon.config.jackson.factory.EnumDeserializers;
 import io.github.gregoryfeijon.config.jackson.factory.EnumSerializers;
 import io.github.gregoryfeijon.config.jackson.serialization.introspector.JsonExcludeIntrospector;

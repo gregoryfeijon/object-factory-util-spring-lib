@@ -2,6 +2,7 @@ package io.github.gregoryfeijon;
 
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectCopyExclude;
+import io.github.gregoryfeijon.domain.annotation.ObjectCopyExclusions;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ObjectCopyExclusions(value = {"alternativeName", "attributeNameDoesntExists"})
 class FooWrapper {
 
     @FieldCopyName(value = "primitiveBar")
@@ -35,5 +37,8 @@ class FooWrapper {
     @ObjectCopyExclude
     private String fieldExcludedWithAnnotation;
 
-    private String filedExcludedWithAnnotationInDest;
+    private String fieldExcludedWithAnnotationInDest;
+
+    @FieldCopyName("alternativeName")
+    private String fieldExcludedUsingClassLevelAnnotation;
 }

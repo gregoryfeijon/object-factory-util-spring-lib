@@ -56,7 +56,8 @@ class ObjectFactoryUtilTest {
         fooWrapper.setObjectFooMap(Map.of("key", new ObjectFoo()));
         fooWrapper.setFieldExcluded("This value shouldn't be copied");
         fooWrapper.setFieldExcludedWithAnnotation("This value shouldn't be copied too");
-        fooWrapper.setFiledExcludedWithAnnotationInDest("This value shouldn't be copied too");
+        fooWrapper.setFieldExcludedWithAnnotationInDest("This value shouldn't be copied too");
+        fooWrapper.setFieldExcludedUsingClassLevelAnnotation("This value shouldn't be copied too");
 
         BarWrapper barWrapper = ObjectFactoryUtil.createFromObject(fooWrapper, BarWrapper.class);
 
@@ -68,6 +69,7 @@ class ObjectFactoryUtilTest {
         assertThat(barWrapper.getFieldExcluded()).isNull();
         assertThat(barWrapper.getFieldExcludedWithAnnotation()).isNull();
         assertThat(barWrapper.getFieldExcludedWithAnnotationInDestNameModified()).isNull();
+        assertThat(barWrapper.getFieldExcludedUsingClassLevelAnnotation()).isNull();
     }
 
     @Test
@@ -204,10 +206,10 @@ class ObjectFactoryUtilTest {
     @Test
     void shouldReturnEmptyMapWhenSourceAndDestinationHaveNoFields() {
         // given
-        EmptySource source = new EmptySource();
+        OnlyStaticAttributeSource source = new OnlyStaticAttributeSource();
 
         // when
-        EmptyDestination result = ObjectFactoryUtil.createFromObject(source, EmptyDestination.class);
+        OnlyStaticAttributeDestination result = ObjectFactoryUtil.createFromObject(source, OnlyStaticAttributeDestination.class);
 
         // then
         assertThat(result).isNotNull();
@@ -262,6 +264,14 @@ class ObjectFactoryUtilTest {
 
         // 6. Fallback: tipos diferentes
         assertThat(dest.getFallback()).isEqualTo("stringFallback");
+    }
+
+    @Test
+    void shouldHandleEmptyObjectCopy() {
+        EmptySource emptySource = new EmptySource();
+        var copy = ObjectFactoryUtil.createFromObject(emptySource, EmptySource.class);
+
+        assertThat(copy).isNotNull();
     }
 
 }

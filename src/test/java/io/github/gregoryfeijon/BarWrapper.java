@@ -30,4 +30,7 @@ class BarWrapper {
     @ObjectCopyExclude
     @FieldCopyName("fieldExcludedWithAnnotationInDest")
     private String fieldExcludedWithAnnotationInDestNameModified;
+
+    @FieldCopyName("alternativeName")
+    private String fieldExcludedUsingClassLevelAnnotation;
 }
