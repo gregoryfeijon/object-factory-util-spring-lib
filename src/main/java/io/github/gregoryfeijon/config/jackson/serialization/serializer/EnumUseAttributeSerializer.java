@@ -19,18 +19,16 @@ import static io.github.gregoryfeijon.config.jackson.serialization.JacksonSerial
 import static io.github.gregoryfeijon.config.jackson.serialization.JacksonSerializationHelper.isValidEnum;
 
 /**
- * A Jackson serializer for enum types that supports serializing based on enum attributes.
+ * Custom Jackson serializer for enum types that uses the {@link EnumUseAttributeInMarshalling} annotation.
  * <p>
- * This serializer uses the {@link EnumUseAttributeInMarshalling} annotation to determine
- * which attribute value should be used for serialization instead of the enum name.
- *
- * @author gregory.feijon
+ * This serializer allows enums to be serialized using a custom attribute value
+ * instead of the default enum name.
  */
 @Slf4j
 public class EnumUseAttributeSerializer extends JsonSerializer<Enum<?>> implements ContextualSerializer {
 
     /**
-     * The enum class this deserializer handles.
+     * The enum class this serializer handles.
      */
     private final Class<? extends Enum<?>> enumType;
 
@@ -71,12 +69,19 @@ public class EnumUseAttributeSerializer extends JsonSerializer<Enum<?>> implemen
             gen.writeNull();
             return;
         }
-        EnumUseAttributeInMarshalling use = getEnumUseAttributeInMarshallingAnnotation(value, enumType);
+
+        Class<? extends Enum<?>> targetEnumType = enumType != null
+                ? enumType
+                : (Class<? extends Enum<?>>) value.getClass();
+
+        EnumUseAttributeInMarshalling use = getEnumUseAttributeInMarshallingAnnotation(value, targetEnumType);
         String attr = Optional.ofNullable(use)
                 .map(EnumMarshallingUtil::getAttributeName)
                 .orElse(null);
-        var attributeValue = getAttributeValue(value, attr, enumType);
-        if (isValidEnum(value, attr, attributeValue, enumType)) {
+
+        var attributeValue = getAttributeValue(value, attr, targetEnumType);
+
+        if (isValidEnum(value, attr, attributeValue, targetEnumType)) {
             gen.writeString(attributeValue);
         } else {
             gen.writeString(value.name());
@@ -87,23 +92,29 @@ public class EnumUseAttributeSerializer extends JsonSerializer<Enum<?>> implemen
      * Creates a contextualized serializer for a specific property.
      * <p>
      * This method determines the actual enum type to use for serialization.
+     * It handles both cases where the enum is a property of an object or serialized directly.
      *
      * @param prov     The serializer provider
-     * @param property The bean property being serialized
+     * @param property The bean property being serialized (can be null for direct enum serialization)
      * @return A serializer for the specific property type
      * @throws JsonMappingException If there is an error creating the contextualized serializer
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-        if (property != null) {
-            JavaType type = property.getType();
-            Class<?> raw = type.getRawClass();
-            if (raw != null && raw.isEnum()) {
-                return new EnumUseAttributeSerializer((Class<? extends Enum<?>>) raw);
-            }
-            return prov.findValueSerializer(type);
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+            throws JsonMappingException {
+
+        if (property == null) {
+            log.debug("No property context available, will determine enum type dynamically during serialization");
+            return this;
         }
 
-        throw JsonMappingException.from(prov.getGenerator(), "EnumUseAttributeSerializer cannot be used without BeanProperty");
+        JavaType type = property.getType();
+        Class<?> raw = type.getRawClass();
+
+        if (raw != null && raw.isEnum()) {
+            return new EnumUseAttributeSerializer((Class<? extends Enum<?>>) raw);
+        }
+
+        return prov.findValueSerializer(type);
     }
 }

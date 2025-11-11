@@ -56,6 +56,8 @@ class ObjectFactoryUtilTest {
         fooWrapper.setObjectFooMap(Map.of("key", new ObjectFoo()));
         fooWrapper.setFieldExcluded("This value shouldn't be copied");
         fooWrapper.setFieldExcludedWithAnnotation("This value shouldn't be copied too");
+        fooWrapper.setFieldExcludedWithAnnotationInDest("This value shouldn't be copied too");
+        fooWrapper.setFieldExcludedUsingClassLevelAnnotation("This value shouldn't be copied too");
 
         BarWrapper barWrapper = ObjectFactoryUtil.createFromObject(fooWrapper, BarWrapper.class);
 
@@ -66,6 +68,8 @@ class ObjectFactoryUtilTest {
         assertThat(barWrapper.getObjectBarMap()).containsKey("key");
         assertThat(barWrapper.getFieldExcluded()).isNull();
         assertThat(barWrapper.getFieldExcludedWithAnnotation()).isNull();
+        assertThat(barWrapper.getFieldExcludedWithAnnotationInDestNameModified()).isNull();
+        assertThat(barWrapper.getFieldExcludedUsingClassLevelAnnotation()).isNull();
     }
 
     @Test
@@ -125,14 +129,14 @@ class ObjectFactoryUtilTest {
 
         assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(emptyList))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("não possui elementos");
+                .hasMessageContaining("has no elements");
     }
 
     @Test
     void shouldThrowExceptionWhenSourceIsNull() {
         assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(null, PrimitiveBar.class))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("objeto a ser copiado é nulo");
+                .hasMessageContaining("The object to be copied is null");
     }
 
     @Test
@@ -196,16 +200,16 @@ class ObjectFactoryUtilTest {
 
         assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, supplier))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("coleção especificada para retorno é nulo");
+                .hasMessageContaining("The specified collection type for return is null");
     }
 
     @Test
     void shouldReturnEmptyMapWhenSourceAndDestinationHaveNoFields() {
         // given
-        EmptySource source = new EmptySource();
+        OnlyStaticAttributeSource source = new OnlyStaticAttributeSource();
 
         // when
-        EmptyDestination result = ObjectFactoryUtil.createFromObject(source, EmptyDestination.class);
+        OnlyStaticAttributeDestination result = ObjectFactoryUtil.createFromObject(source, OnlyStaticAttributeDestination.class);
 
         // then
         assertThat(result).isNotNull();
@@ -231,7 +235,7 @@ class ObjectFactoryUtilTest {
         // Passando dest como null, deve lançar ApiException
         assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(source, dest))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("O objeto de destino é nulo");
+                .hasMessageContaining("The destination object is null");
     }
 
     @Test
@@ -260,6 +264,14 @@ class ObjectFactoryUtilTest {
 
         // 6. Fallback: tipos diferentes
         assertThat(dest.getFallback()).isEqualTo("stringFallback");
+    }
+
+    @Test
+    void shouldHandleEmptyObjectCopy() {
+        EmptySource emptySource = new EmptySource();
+        var copy = ObjectFactoryUtil.createFromObject(emptySource, EmptySource.class);
+
+        assertThat(copy).isNotNull();
     }
 
 }

@@ -1,13 +1,10 @@
 package io.github.gregoryfeijon;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+/**
+ * 11/11/2025 às 18:44
+ *
+ * @author gregory.feijon
+ */
 
-@Getter
-@Setter
-@NoArgsConstructor
-class EmptySource {
-
-    private static final String IGNORED = "nope";
+public class EmptySource {
 }
