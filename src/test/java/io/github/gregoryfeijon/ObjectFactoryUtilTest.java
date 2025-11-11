@@ -129,14 +129,14 @@ class ObjectFactoryUtilTest {
 
         assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(emptyList))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("não possui elementos");
+                .hasMessageContaining("has no elements");
     }
 
     @Test
     void shouldThrowExceptionWhenSourceIsNull() {
         assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(null, PrimitiveBar.class))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("objeto a ser copiado é nulo");
+                .hasMessageContaining("The object to be copied is null");
     }
 
     @Test
@@ -200,7 +200,7 @@ class ObjectFactoryUtilTest {
 
         assertThatThrownBy(() -> ObjectFactoryUtil.copyAllObjectsFromCollection(fooList, supplier))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("coleção especificada para retorno é nulo");
+                .hasMessageContaining("The specified collection type for return is null");
     }
 
     @Test
@@ -235,7 +235,7 @@ class ObjectFactoryUtilTest {
         // Passando dest como null, deve lançar ApiException
         assertThatThrownBy(() -> ObjectFactoryUtil.createFromObject(source, dest))
                 .isInstanceOf(ApiException.class)
-                .hasMessageContaining("O objeto de destino é nulo");
+                .hasMessageContaining("The destination object is null");
     }
 
     @Test
