@@ -1,6 +1,8 @@
 package io.github.gregoryfeijon;
 
+import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
+import io.github.gregoryfeijon.domain.annotation.ObjectCopyExclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,4 +26,8 @@ class BarWrapper {
     private Map<String, ObjectBar> objectBarMap;
     private String fieldExcluded;
     private String fieldExcludedWithAnnotation;
+
+    @ObjectCopyExclude
+    @FieldCopyName("fieldExcludedWithAnnotationInDest")
+    private String fieldExcludedWithAnnotationInDestNameModified;
 }

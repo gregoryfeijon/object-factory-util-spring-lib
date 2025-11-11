@@ -34,4 +34,6 @@ class FooWrapper {
 
     @ObjectCopyExclude
     private String fieldExcludedWithAnnotation;
+
+    private String filedExcludedWithAnnotationInDest;
 }

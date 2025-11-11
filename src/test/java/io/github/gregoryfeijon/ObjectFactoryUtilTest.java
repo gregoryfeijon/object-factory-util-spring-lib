@@ -56,6 +56,7 @@ class ObjectFactoryUtilTest {
         fooWrapper.setObjectFooMap(Map.of("key", new ObjectFoo()));
         fooWrapper.setFieldExcluded("This value shouldn't be copied");
         fooWrapper.setFieldExcludedWithAnnotation("This value shouldn't be copied too");
+        fooWrapper.setFiledExcludedWithAnnotationInDest("This value shouldn't be copied too");
 
         BarWrapper barWrapper = ObjectFactoryUtil.createFromObject(fooWrapper, BarWrapper.class);
 
@@ -66,6 +67,7 @@ class ObjectFactoryUtilTest {
         assertThat(barWrapper.getObjectBarMap()).containsKey("key");
         assertThat(barWrapper.getFieldExcluded()).isNull();
         assertThat(barWrapper.getFieldExcludedWithAnnotation()).isNull();
+        assertThat(barWrapper.getFieldExcludedWithAnnotationInDestNameModified()).isNull();
     }
 
     @Test
