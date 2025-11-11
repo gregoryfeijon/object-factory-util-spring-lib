@@ -1,7 +1,7 @@
 package io.github.gregoryfeijon;
 
-import io.github.gregoryfeijon.domain.annotation.Exclude;
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
+import io.github.gregoryfeijon.domain.annotation.ObjectCopyExclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +32,6 @@ class FooWrapper {
 
     private String fieldExcluded;
 
-    @Exclude
+    @ObjectCopyExclude
     private String fieldExcludedWithAnnotation;
 }

@@ -2,9 +2,9 @@ package io.github.gregoryfeijon.utils.serialization;
 
 
 import com.google.gson.Gson;
-import io.github.gregoryfeijon.domain.annotation.Exclude;
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
+import io.github.gregoryfeijon.domain.annotation.ObjectCopyExclude;
 import io.github.gregoryfeijon.exception.ApiException;
 import io.github.gregoryfeijon.utils.FieldUtil;
 import io.github.gregoryfeijon.utils.ReflectionTypeUtils;
@@ -325,24 +325,24 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método que obtém todos os campos que deverão ser copiados do objeto
-     * de origem (source).</strong>
+     * <strong>Method that retrieves all fields that should be copied from the
+     * source object.</strong>
      *
      * <p>
-     * Primeiramente, utiliza-se o método
-     * {@linkplain ReflectionUtil#getFieldsAsCollection(Object)
-     * getFieldsAsCollection} para obter todos os campos do objeto de origem dos
-     * dados. A partir dessa lista, é criada uma outra lista dos campos a remover,
-     * verificando os campos final, que nãos erão trabalhados. Posteriormente, o
-     * objeto de destino é verificado e, caso existam campos definidos no
-     * {@linkplain ObjectConstructor#exclude() exclude} da annotation
-     * {@linkplain ObjectConstructor}, também serão adicionados à lista de exclusão.
-     * Os campos que foram separados são removidos, retornando a lista com os
-     * restantes.
+     * First, it uses the {@linkplain ReflectionUtil#getFieldsAsCollection(Object)
+     * getFieldsAsCollection} method to obtain all fields from the source data object.
+     * From this list, another list of fields to be removed is created by checking
+     * final fields, which will not be processed. Subsequently, the destination object
+     * is verified and, if there are fields defined in the
+     * {@linkplain ObjectConstructor#exclude() exclude} of the
+     * {@linkplain ObjectConstructor} annotation, they will also be added to the
+     * exclusion list. Fields annotated with {@linkplain ObjectCopyExclude} in both
+     * source and dest are also excluded.
+     * The separated fields are removed, returning the list with the remaining ones.
      * <p>
      *
-     * @param <T>    - define o tipo do objeto retornado
-     * @param <S>    - define o tipo do objeto copiado
+     * @param <T>    - defines the type of the returned object
+     * @param <S>    - defines the type of the copied object
      * @param source - &lt;S&gt;
      * @param dest   - &lt;T&gt;
      * @return {@linkplain List}&lt;{@linkplain Field}&gt;
@@ -351,13 +351,14 @@ public final class ObjectFactoryUtil {
         List<Field> sourceFields = new ArrayList<>(ReflectionUtil.getFieldsAsCollection(source));
         Set<Field> fieldsToRemove = sourceFields.stream()
                 .filter(PREDICATE_MODIFIERS)
-                .collect(Collectors.toSet()); // ← muda pra Set
+                .collect(Collectors.toSet());
 
         String[] exclude = getExcludeFromObjectConstructorAnnotation(dest);
         if (ArrayUtils.isNotEmpty(exclude)) {
-            getFieldsAnnotatedToExclude(fieldsToRemove, sourceFields, exclude);
+            getFieldsListedToExclude(fieldsToRemove, sourceFields, exclude);
         }
         getFieldsFromSourceAnnotatedToExclude(fieldsToRemove, sourceFields);
+        getFieldsFromDestAnnotatedToExclude(fieldsToRemove, sourceFields, dest);
 
         if (!fieldsToRemove.isEmpty()) {
             sourceFields.removeAll(fieldsToRemove);
@@ -368,19 +369,47 @@ public final class ObjectFactoryUtil {
 
     private static void getFieldsFromSourceAnnotatedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields) {
         sourceFields.stream()
-                .filter(f -> f.isAnnotationPresent(Exclude.class))
+                .filter(f -> f.isAnnotationPresent(ObjectCopyExclude.class))
                 .forEach(fieldsToRemove::add);
     }
 
     /**
-     * <strong>Método que adiciona os campos especificados na annotation especificada no tipo da classe de destino dos
-     * dados copiados.</strong>
+     * <strong>Method that adds to the exclusion list the fields from source that have
+     * corresponding fields in dest annotated with {@linkplain ObjectCopyExclude}.</strong>
      *
-     * @param fieldsToRemove {@linkplain List}&lt;{@linkplain Field}&gt;
+     * <p>
+     * This method searches the destination object for fields annotated with @ObjectCopyExclude,
+     * and for each one found, it looks in the source for a field with the same name to add
+     * to the exclusion list. The Set ensures there are no duplications.
+     * </p>
+     *
+     * @param <T>            - defines the type of the destination object
+     * @param fieldsToRemove {@linkplain Set}&lt;{@linkplain Field}&gt; - set of fields to be removed
+     * @param sourceFields   {@linkplain List}&lt;{@linkplain Field}&gt; - list of fields from source
+     * @param dest           &lt;T&gt; - destination object
+     */
+    private static <T> void getFieldsFromDestAnnotatedToExclude(Set<Field> fieldsToRemove,
+                                                                List<Field> sourceFields,
+                                                                T dest) {
+        List<Field> destFields = ReflectionUtil.getFieldsAsCollection(dest, ArrayList::new);
+
+        destFields.stream()
+                .filter(f -> f.isAnnotationPresent(ObjectCopyExclude.class))
+                .forEach(destField -> sourceFields.stream()
+                        .filter(sourceField -> sourceField.getName().equalsIgnoreCase(destField.getName()))
+                        .findAny()
+                        .ifPresent(fieldsToRemove::add));
+    }
+
+    /**
+     * <strong>Method that adds the fields specified in the annotation defined in the destination
+     * class type of the copied data.</strong>
+     *
+     * @param fieldsToRemove {@linkplain Set}&lt;{@linkplain Field}&gt;
      * @param sourceFields   {@linkplain List}&lt;{@linkplain Field}&gt;
      * @param exclude        {@linkplain String}[]
      */
-    private static void getFieldsAnnotatedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
+    private static void getFieldsListedToExclude(Set<Field> fieldsToRemove, List<Field> sourceFields, String[] exclude) {
         stream(exclude)
                 .forEach(excludeField -> sourceFields.stream()
                         .filter(sourceField -> sourceField.getName().equalsIgnoreCase(excludeField))
@@ -389,9 +418,9 @@ public final class ObjectFactoryUtil {
     }
 
     /**
-     * <strong>Método que verifica o Objeto de destino. Se houver a annotation
-     * {@linkplain ObjectConstructor} na classe, retorna o exclude. Caso contrário,
-     * retorna um array vazio.</strong>
+     * <strong>Method that verifies the destination Object. If the
+     * {@linkplain ObjectConstructor} annotation is present in the class, returns the exclude.
+     * Otherwise, returns an empty array.</strong>
      *
      * @param <T>  - method type definer
      * @param dest - &lt;T&gt;
