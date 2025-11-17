@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 /**
  * 11/11/2025 às 18:44

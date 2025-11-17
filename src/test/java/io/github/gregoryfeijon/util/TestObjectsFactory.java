@@ -1,5 +1,17 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.util;
 
+import io.github.gregoryfeijon.domain.BarWrapper;
+import io.github.gregoryfeijon.domain.FooDuplicated;
+import io.github.gregoryfeijon.domain.FooWrapper;
+import io.github.gregoryfeijon.domain.NonSerializableObject;
+import io.github.gregoryfeijon.domain.ObjectBar;
+import io.github.gregoryfeijon.domain.ObjectFoo;
+import io.github.gregoryfeijon.domain.PrimitiveArrayHolder;
+import io.github.gregoryfeijon.domain.PrimitiveBar;
+import io.github.gregoryfeijon.domain.PrimitiveFoo;
+import io.github.gregoryfeijon.domain.enums.StatusTestSource;
+import io.github.gregoryfeijon.domain.VerifyValueSource;
+import io.github.gregoryfeijon.domain.WrapperArrayHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -8,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class TestObjectsFactory {
+public final class TestObjectsFactory {
 
-    static PrimitiveFoo createPrimitiveFoo() {
+    public static PrimitiveFoo createPrimitiveFoo() {
         return PrimitiveFoo.builder()
                 .intValue(1)
                 .longValue(2L)
@@ -18,7 +30,7 @@ final class TestObjectsFactory {
                 .build();
     }
 
-    static PrimitiveBar createPrimitiveBar() {
+    public static PrimitiveBar createPrimitiveBar() {
         return PrimitiveBar.builder()
                 .iVal(1)
                 .longValue(2L)
@@ -26,7 +38,7 @@ final class TestObjectsFactory {
                 .build();
     }
 
-    static ObjectFoo createObjectFoo() {
+    public static ObjectFoo createObjectFoo() {
         return ObjectFoo.builder()
                 .integerValue(10)
                 .stringValue("foo")
@@ -34,7 +46,7 @@ final class TestObjectsFactory {
                 .build();
     }
 
-    static ObjectBar createObjectBar() {
+    public static ObjectBar createObjectBar() {
         return ObjectBar.builder()
                 .integerValue(10)
                 .stringValue("foo")
@@ -42,7 +54,7 @@ final class TestObjectsFactory {
                 .build();
     }
 
-    static FooWrapper createFooWrapper() {
+    public static FooWrapper createFooWrapper() {
         return FooWrapper.builder()
                 .primitiveFoo(createPrimitiveFoo())
                 .objectFoo(createObjectFoo())
@@ -51,7 +63,7 @@ final class TestObjectsFactory {
                 .build();
     }
 
-    static BarWrapper createBarWrapper() {
+    public static BarWrapper createBarWrapper() {
         return BarWrapper.builder()
                 .primitiveBar(createPrimitiveBar())
                 .objectBar(createObjectBar())
@@ -60,32 +72,32 @@ final class TestObjectsFactory {
                 .build();
     }
 
-    static PrimitiveArrayHolder createPrimitiveArrayHolder() {
+    public static PrimitiveArrayHolder createPrimitiveArrayHolder() {
         return PrimitiveArrayHolder.builder()
                 .intValues(new int[]{1, 2, 3})
                 .build();
     }
 
-    static WrapperArrayHolder createWrapperArrayHolder() {
+    public static WrapperArrayHolder createWrapperArrayHolder() {
         return WrapperArrayHolder.builder()
                 .integerValues(new Integer[]{1, 2, 3})
                 .build();
     }
 
-    static NonSerializableObject createNonSerializableObject() {
+    public static NonSerializableObject createNonSerializableObject() {
         return NonSerializableObject.builder()
                 .thread(new Thread())
                 .build();
     }
 
-    static FooDuplicated createFooDuplicatedObject() {
+    public static FooDuplicated createFooDuplicatedObject() {
         return FooDuplicated.builder()
                 .nome1("nome 1 duplicado")
                 .nome2("nome 2 duplicado")
                 .build();
     }
 
-    static VerifyValueSource createVerifyValueSource() {
+    public static VerifyValueSource createVerifyValueSource() {
         return VerifyValueSource.builder()
                 .sameType("ok")
                 .wrapperToPrimitiveNull(null)

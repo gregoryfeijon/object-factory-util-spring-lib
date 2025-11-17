@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain.enums;
 
 public enum StatusTestSource {
 

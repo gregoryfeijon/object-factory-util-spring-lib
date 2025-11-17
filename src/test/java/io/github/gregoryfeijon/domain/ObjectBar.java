@@ -1,5 +1,6 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
+import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,9 +14,11 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class ObjectFoo {
+public class ObjectBar {
 
     private Integer integerValue;
     private String stringValue;
-    private BigDecimal bigDecimalValue;
+
+    @FieldCopyName(value = "bigDecimalValue")
+    private BigDecimal bdValue;
 }

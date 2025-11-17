@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectConstructor;
@@ -18,7 +18,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @ObjectConstructor(exclude = {"fieldExcluded"})
-class BarWrapper {
+public class BarWrapper {
 
     private PrimitiveBar primitiveBar;
     private ObjectBar objectBar;

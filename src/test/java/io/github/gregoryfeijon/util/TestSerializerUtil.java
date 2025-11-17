@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.util;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +19,7 @@ import io.github.gregoryfeijon.utils.serialization.adapter.JacksonAdapter;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerAdapter;
 import io.github.gregoryfeijon.utils.serialization.adapter.SerializerProvider;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.EnumMap;
@@ -31,9 +32,12 @@ import java.util.Optional;
  * for use in tests, ensuring consistency with production configuration.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class TestSerializerUtil {
+public final class TestSerializerUtil {
 
+    @Getter
     private static final ObjectMapper objectMapper;
+
+    @Getter
     private static final Gson gson;
 
     static {
@@ -42,27 +46,9 @@ final class TestSerializerUtil {
     }
 
     /**
-     * Returns the pre-configured ObjectMapper instance.
-     *
-     * @return ObjectMapper with custom enum serialization and Java time support
-     */
-    static ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
-    /**
-     * Returns the pre-configured Gson instance.
-     *
-     * @return Gson with custom enum serialization and adapters
-     */
-    static Gson getGson() {
-        return gson;
-    }
-
-    /**
      * Configures the Gson and Jackson adapters for the SerializerProvider.
      */
-    static void configureGsonAndJacksonAdapter() {
+    public static void configureGsonAndJacksonAdapter() {
         EnumMap<SerializationType, SerializerAdapter> adapters = new EnumMap<>(SerializationType.class);
         adapters.put(SerializationType.GSON, new GsonAdapter(gson));
         adapters.put(SerializationType.JACKSON, new JacksonAdapter(objectMapper));

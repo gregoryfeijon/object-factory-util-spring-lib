@@ -1,12 +1,12 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 /**
  * ClassLoader that filters out specific classes for testing conditional configuration.
  */
-class FilteredClassLoader extends ClassLoader {
+public class FilteredClassLoader extends ClassLoader {
     private final Class<?>[] filteredClasses;
 
-    FilteredClassLoader(Class<?>... filteredClasses) {
+    public FilteredClassLoader(Class<?>... filteredClasses) {
         this.filteredClasses = filteredClasses;
     }
 

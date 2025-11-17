@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class PrimitiveFoo {
+public class PrimitiveArrayHolder {
 
-    private int intValue;
-    private long longValue;
-    private boolean boolValue;
+    private int[] intValues;
 }

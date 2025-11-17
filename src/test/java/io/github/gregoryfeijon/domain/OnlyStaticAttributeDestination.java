@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-class OnlyStaticAttributeDestination {
+public class OnlyStaticAttributeDestination {
 
     private static final String IGNORED = "nope";
 }

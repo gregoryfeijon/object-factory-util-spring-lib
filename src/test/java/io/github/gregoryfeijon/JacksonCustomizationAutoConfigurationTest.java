@@ -5,6 +5,9 @@ import io.github.gregoryfeijon.config.jackson.EnumCustomizationModule;
 import io.github.gregoryfeijon.config.jackson.JacksonCustomizationAutoConfiguration;
 import io.github.gregoryfeijon.config.jackson.factory.EnumDeserializers;
 import io.github.gregoryfeijon.config.jackson.factory.EnumSerializers;
+import io.github.gregoryfeijon.domain.FilteredClassLoader;
+import io.github.gregoryfeijon.domain.TestObjectForEnum;
+import io.github.gregoryfeijon.domain.enums.TestEnum;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
@@ -55,14 +58,14 @@ class JacksonCustomizationAutoConfigurationTest {
     }
 
     @Test
-    void shouldConfigureObjectMapperWithCustomModule() throws Exception {
+    void shouldConfigureObjectMapperWithCustomModule() {
         contextRunner.run(context -> {
             ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
             assertThat(objectMapper).isNotNull();
 
             // Functional test: verify custom enum serialization works
             // Use a DTO wrapping the enum to ensure proper contextualization
-            TestDto dto = new TestDto(TestEnum.TEST_VALUE);
+            TestObjectForEnum dto = new TestObjectForEnum(TestEnum.TEST_VALUE);
             String json = objectMapper.writeValueAsString(dto);
 
             // If the module is registered, custom serialization should work
@@ -70,36 +73,17 @@ class JacksonCustomizationAutoConfigurationTest {
             assertThat(json).contains("TEST_VALUE");
 
             // Deserialize back
-            TestDto deserialized = objectMapper.readValue(json, TestDto.class);
+            TestObjectForEnum deserialized = objectMapper.readValue(json, TestObjectForEnum.class);
             assertThat(deserialized).isNotNull();
             assertThat(deserialized.getStatus()).isEqualTo(TestEnum.TEST_VALUE);
         });
     }
 
     // Test DTO to wrap the enum
-    static class TestDto {
-        private TestEnum status;
 
-        public TestDto() {}
-
-        public TestDto(TestEnum status) {
-            this.status = status;
-        }
-
-        public TestEnum getStatus() {
-            return status;
-        }
-
-        public void setStatus(TestEnum status) {
-            this.status = status;
-        }
-    }
 
     // Simple test enum for verification
-    enum TestEnum {
-        TEST_VALUE,
-        ANOTHER_VALUE
-    }
+
 
     @Test
     void shouldAllowCustomBeansToOverride() {

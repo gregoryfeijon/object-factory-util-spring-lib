@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class PrimitiveBar {
+public class PrimitiveBar {
 
     @FieldCopyName(value = "intValue")
     private int iVal;

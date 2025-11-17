@@ -1,5 +1,6 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
+import io.github.gregoryfeijon.domain.enums.StatusTestSource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class VerifyValueSource {
+public class VerifyValueSource {
 
     private String sameType;
     private Integer wrapperToPrimitiveNull;

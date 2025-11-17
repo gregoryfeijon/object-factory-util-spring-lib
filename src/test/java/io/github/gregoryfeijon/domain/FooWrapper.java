@@ -1,4 +1,4 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 import io.github.gregoryfeijon.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.domain.annotation.ObjectCopyExclude;
@@ -18,7 +18,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @ObjectCopyExclusions(value = {"alternativeName", "attributeNameDoesntExists"})
-class FooWrapper {
+public class FooWrapper {
 
     @FieldCopyName(value = "primitiveBar")
     private PrimitiveFoo primitiveFoo;

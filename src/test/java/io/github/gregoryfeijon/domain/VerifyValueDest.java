@@ -1,5 +1,6 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
+import io.github.gregoryfeijon.domain.enums.StatusTestDest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-class VerifyValueDest {
+public class VerifyValueDest {
 
     private String sameType;
     private int wrapperToPrimitiveNull;

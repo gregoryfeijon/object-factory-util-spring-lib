@@ -1,11 +1,11 @@
-package io.github.gregoryfeijon;
+package io.github.gregoryfeijon.domain;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-class MismatchSource {
+public class MismatchSource {
 
     private String foo;
 }
