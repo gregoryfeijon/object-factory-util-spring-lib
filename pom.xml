@@ -10,7 +10,7 @@
     <description>Java library that create copy from objects and collections with new memory reference. Version
         for spring projects.
     </description>
-    <url>https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</url>
+    <url>https://github.com/gregory-feijon-libs/object-factory-util-spring-lib.git</url>
 
     <licenses>
         <license>
@@ -28,10 +28,10 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/gregoryfeijon/object-factory-util-spring-lib.git</connection>
-        <developerConnection>scm:git:https://github.com/gregoryfeijon/object-factory-util-spring-lib.git
+        <connection>scm:git:https://github.com/gregory-feijon-libs/object-factory-util-spring-lib.git</connection>
+        <developerConnection>scm:git:https://github.com/gregory-feijon-libs/object-factory-util-spring-lib.git
         </developerConnection>
-        <url>https://github.com/gregoryfeijon/object-factory-util-spring-lib</url>
+        <url>https://github.com/gregory-feijon-libs/object-factory-util-spring-lib</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -60,6 +60,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <sonar.organization>gregory-feijon-libs</sonar.organization>
+        <sonar.projectKey>gregory-feijon-libs_object-factory-util-spring-lib</sonar.projectKey>
         <lombok.version>1.18.42</lombok.version>
         <spring.starter.version>3.5.7</spring.starter.version>
     </properties>
