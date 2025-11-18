@@ -1,0 +1,41 @@
+package io.github.gregoryfeijon.object.factory.util.domain.properties;
+
+import io.github.gregoryfeijon.object.factory.util.domain.enums.SerializationType;
+import io.github.gregoryfeijon.object.factory.util.utils.serialization.adapter.SerializerProvider;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+/**
+ * Configuration properties for the SerializerProvider.
+ * <p>
+ * This class holds configuration settings that determine the behavior of the
+ * {@link SerializerProvider}.
+ * It can be loaded from external configuration sources (e.g., application.properties
+ * or application.yml) to customize serialization behavior.
+ *
+ * @author gregory.feijon
+ */
+@Getter
+@Setter
+@Component
+@ConfigurationProperties("serializer-provider.main")
+public class SerializerProviderProperties {
+
+    /**
+     * Determines whether the SerializerProvider is enabled.
+     * <p>
+     * When set to false, serialization operations may fall back to default behavior
+     * or be disabled entirely, depending on the implementation.
+     */
+    private boolean enabled = true;
+
+    /**
+     * Specifies the serialization type to use.
+     * <p>
+     * This should correspond to one of the values defined in {@link SerializationType}.
+     * Common values are "gson" and "jackson".
+     */
+    private String type = "gson";
+}

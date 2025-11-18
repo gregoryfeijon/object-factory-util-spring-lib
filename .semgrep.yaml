@@ -7,7 +7,8 @@ rules:
       reason: "Class is instantiated internally using known domain types. No user input is involved."
     paths:
       include:
-        - src/main/java/io/github/gregoryfeijon/utils/serialization/ObjectFactoryUtil.java
+        - src/main/java/io/github/gregoryfeijon/object/factory/util/utils/serialization/ObjectFactoryUtil.java
+        - src/main/java/io/github/gregoryfeijon/object/factory/util/utils/ReflectionTypeUtil.java
     languages: [java]
 
   - id: java.lang.security.audit.object-deserialization.object-deserialization
