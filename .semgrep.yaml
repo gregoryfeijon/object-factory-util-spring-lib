@@ -19,5 +19,5 @@ rules:
       reason: "Deserialization only occurs on internal byte[] generated within the application. No external input."
     paths:
       include:
-        - src/main/java/io/github/gregoryfeijon/utils/serialization/SerializationUtil.java
+        - src/main/java/io/github/gregoryfeijon/object/factory/util/utils/serialization/SerializationUtil.java
     languages: [java]
