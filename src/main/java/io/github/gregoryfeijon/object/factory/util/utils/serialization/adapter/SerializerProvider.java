@@ -2,9 +2,9 @@ package io.github.gregoryfeijon.object.factory.util.utils.serialization.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import io.github.gregoryfeijon.object.factory.commons.utils.factory.FactoryUtil;
 import io.github.gregoryfeijon.object.factory.util.domain.enums.SerializationType;
 import io.github.gregoryfeijon.object.factory.util.domain.properties.SerializerProviderProperties;
-import io.github.gregoryfeijon.object.factory.util.utils.factory.FactoryUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -176,6 +176,12 @@
             <version>7.1.8.Final</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.gregoryfeijon</groupId>
+            <artifactId>object-factory-commons-spring-lib</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <pluginRepositories>

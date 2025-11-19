@@ -1,15 +1,15 @@
 package io.github.gregoryfeijon.object.factory.util.utils.serialization;
 
 
+import io.github.gregoryfeijon.object.factory.commons.utils.FieldUtil;
+import io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil;
+import io.github.gregoryfeijon.object.factory.commons.utils.ReflectionUtil;
 import io.github.gregoryfeijon.object.factory.util.domain.annotation.FieldCopyName;
 import io.github.gregoryfeijon.object.factory.util.domain.annotation.ObjectConstructor;
 import io.github.gregoryfeijon.object.factory.util.domain.annotation.ObjectCopyExclude;
 import io.github.gregoryfeijon.object.factory.util.domain.annotation.ObjectCopyExclusions;
 import io.github.gregoryfeijon.object.factory.util.domain.model.ClassPairKey;
 import io.github.gregoryfeijon.object.factory.util.exception.ApiException;
-import io.github.gregoryfeijon.object.factory.util.utils.FieldUtil;
-import io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil;
-import io.github.gregoryfeijon.object.factory.util.utils.ReflectionUtil;
 import io.github.gregoryfeijon.object.factory.util.utils.gson.GsonTypesUtil;
 import io.github.gregoryfeijon.object.factory.util.utils.serialization.adapter.SerializerAdapter;
 import io.github.gregoryfeijon.object.factory.util.utils.serialization.adapter.SerializerProvider;
@@ -53,12 +53,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil.defaultValueFor;
-import static io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil.getRawType;
-import static io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil.isClassMapCollection;
-import static io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil.isCollection;
-import static io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil.isPrimitiveOrEnum;
-import static io.github.gregoryfeijon.object.factory.util.utils.ReflectionTypeUtil.isWrapperType;
+import static io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil.defaultValueFor;
+import static io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil.getRawType;
+import static io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil.isClassMapCollection;
+import static io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil.isCollection;
+import static io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil.isPrimitiveOrEnum;
+import static io.github.gregoryfeijon.object.factory.commons.utils.ReflectionTypeUtil.isWrapperType;
 import static java.util.Arrays.stream;
 
 /**
