@@ -1,13 +1,13 @@
 package io.github.gregoryfeijon.object.factory.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.gregoryfeijon.object.factory.util.config.jackson.EnumCustomizationModule;
-import io.github.gregoryfeijon.object.factory.util.config.jackson.JacksonCustomizationAutoConfiguration;
-import io.github.gregoryfeijon.object.factory.util.config.jackson.factory.EnumDeserializers;
-import io.github.gregoryfeijon.object.factory.util.config.jackson.factory.EnumSerializers;
 import io.github.gregoryfeijon.object.factory.util.domain.FilteredClassLoader;
 import io.github.gregoryfeijon.object.factory.util.domain.TestObjectForEnum;
 import io.github.gregoryfeijon.object.factory.util.domain.enums.TestEnum;
+import io.github.gregoryfeijon.serializer.provider.config.jackson.EnumCustomizationModule;
+import io.github.gregoryfeijon.serializer.provider.config.jackson.JacksonCustomizationAutoConfiguration;
+import io.github.gregoryfeijon.serializer.provider.config.jackson.factory.EnumDeserializers;
+import io.github.gregoryfeijon.serializer.provider.config.jackson.factory.EnumSerializers;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;

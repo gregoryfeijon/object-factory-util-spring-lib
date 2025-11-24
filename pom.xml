@@ -182,6 +182,11 @@
             <artifactId>object-factory-commons-spring-lib</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.gregoryfeijon</groupId>
+            <artifactId>serializer-provider-spring-lib</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <pluginRepositories>
