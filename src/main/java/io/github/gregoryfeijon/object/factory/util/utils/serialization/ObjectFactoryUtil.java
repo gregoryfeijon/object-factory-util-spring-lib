@@ -10,9 +10,10 @@ import io.github.gregoryfeijon.object.factory.util.domain.annotation.ObjectCopyE
 import io.github.gregoryfeijon.object.factory.util.domain.annotation.ObjectCopyExclusions;
 import io.github.gregoryfeijon.object.factory.util.domain.model.ClassPairKey;
 import io.github.gregoryfeijon.object.factory.util.exception.ApiException;
-import io.github.gregoryfeijon.object.factory.util.utils.gson.GsonTypesUtil;
-import io.github.gregoryfeijon.object.factory.util.utils.serialization.adapter.SerializerAdapter;
-import io.github.gregoryfeijon.object.factory.util.utils.serialization.adapter.SerializerProvider;
+import io.github.gregoryfeijon.serializer.provider.util.gson.GsonTypesUtil;
+import io.github.gregoryfeijon.serializer.provider.util.serialization.SerializationUtil;
+import io.github.gregoryfeijon.serializer.provider.util.serialization.adapter.SerializerAdapter;
+import io.github.gregoryfeijon.serializer.provider.util.serialization.adapter.SerializerProvider;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -962,8 +963,8 @@ public final class ObjectFactoryUtil {
             byteClone = SerializationUtils.serialize(sourceValue);
             clone = SerializationUtil.deserialize(byteClone);
         } else {
-            byteClone = SerializationUtil.serializaJsonDeUmObjetoGetAsByte(sourceValue);
-            clone = SERIALIZER.deserialize(SerializationUtil.getDesserealizedObjectAsString(byteClone), clazz);
+            byteClone = SerializationUtil.serializeJsonObjectAsByte(sourceValue);
+            clone = SERIALIZER.deserialize(SerializationUtil.getDeserializedObjectAsString(byteClone), clazz);
         }
         return clone;
     }
@@ -983,11 +984,11 @@ public final class ObjectFactoryUtil {
         Object clone = null;
         if (sourceValue != null) {
             try {
-                byte[] byteClone = SerializationUtil.serializaJsonDeUmObjetoGetAsByte(sourceValue);
+                byte[] byteClone = SerializationUtil.serializeJsonObjectAsByte(sourceValue);
                 if (isCollection(sourceValue.getClass())) {
                     clone = verifyList(sourceValue, genericType, byteClone);
                 } else {
-                    clone = SERIALIZER.deserialize(SerializationUtil.getDesserealizedObjectAsString(byteClone), genericType);
+                    clone = SERIALIZER.deserialize(SerializationUtil.getDeserializedObjectAsString(byteClone), genericType);
                 }
             } catch (ClassNotFoundException ex) {
                 throw new ApiException("Error deserializing collection during object copy.", ex);
@@ -1057,7 +1058,7 @@ public final class ObjectFactoryUtil {
      * @return the deserialized collection
      */
     private static Object desserializeCollection(byte[] byteClone, Type genericType) {
-        return SERIALIZER.deserialize(SerializationUtil.getDesserealizedObjectAsString(byteClone), genericType);
+        return SERIALIZER.deserialize(SerializationUtil.getDeserializedObjectAsString(byteClone), genericType);
     }
 
     /**
