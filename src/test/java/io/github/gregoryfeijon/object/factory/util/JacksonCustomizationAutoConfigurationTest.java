@@ -89,9 +89,7 @@ class JacksonCustomizationAutoConfigurationTest {
     void shouldAllowCustomBeansToOverride() {
         contextRunner
                 .withBean("enumSerializers", EnumSerializers.class, EnumSerializers::new)
-                .run(context -> {
-                    assertThat(context).hasSingleBean(EnumSerializers.class);
-                });
+                .run(context -> assertThat(context).hasSingleBean(EnumSerializers.class));
     }
 
     @Test
